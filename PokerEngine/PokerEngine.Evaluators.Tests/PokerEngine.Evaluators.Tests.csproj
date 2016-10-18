@@ -53,6 +53,10 @@
   </Choose>
   <ItemGroup>
     <Compile Include="HandComparerTests\StraightFlushTests.cs" />
+    <Compile Include="HandComparerTests\HighCardTests.cs" />
+    <Compile Include="HandComparerTests\OnePairTests.cs" />
+    <Compile Include="HandComparerTests\TwoPairTests.cs" />
+    <Compile Include="HandComparerTests\ThreeOfAKindTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HandEvaluatorTests\StraightFlushTests.cs" />
     <Compile Include="HandEvaluatorTests\FourOfAKindTests.cs" />
