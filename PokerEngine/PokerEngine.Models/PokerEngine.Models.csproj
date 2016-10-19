@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Card.cs" />
+    <Compile Include="Deck.cs" />
     <Compile Include="Enumerations\CardFace.cs" />
     <Compile Include="Enumerations\CardSuit.cs" />
     <Compile Include="Enumerations\HandValue.cs" />
