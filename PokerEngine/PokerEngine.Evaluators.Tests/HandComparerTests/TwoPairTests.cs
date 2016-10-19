@@ -305,7 +305,7 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         }
 
         [TestMethod]
-        public void Having1TwoPairHandVs1OnePairHandvsHighCardHandReturnsProperResult()
+        public void Having1TwoPairHandVs1OnePairHandVsHighCardHandReturnsProperResult()
         {
             var inputHand1 = new Hand
                 (
@@ -359,7 +359,7 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         }
 
         [TestMethod]
-        public void Having2EqualTwoPairHandVs1OnePairHandvsHighCardHandReturnsProperResult()
+        public void Having2EqualTwoPairHandsVs1OnePairHandVsHighCardHandReturnsProperResult()
         {
             var inputHand1 = new Hand
                 (

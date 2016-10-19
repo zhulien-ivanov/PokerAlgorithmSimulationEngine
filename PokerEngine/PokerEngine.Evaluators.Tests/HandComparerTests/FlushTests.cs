@@ -10,7 +10,7 @@ using PokerEngine.Models.Enumerations;
 namespace PokerEngine.Evaluators.Tests.HandComparerTests
 {
     [TestClass]
-    public class ThreeOfAKindTests
+    public class FlushTests
     {
         private IHandComparer handComparer;
         private List<Hand> inputHands;
@@ -35,58 +35,58 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         }
 
         [TestMethod]
-        public void Having1ThreeOfAKindHandReturnsProperResult()
+        public void Having1FlushHandReturnsProperResult()
         {
             var inputHand1 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Ten, CardSuit.Clubs),
-                        new Card(CardFace.Ten, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
+                        new Card(CardFace.Ace, CardSuit.Clubs),
                         new Card(CardFace.Queen, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
-                    },
-                    HandValue.ThreeOfAKind
-                );
-
-            this.inputHands.Add(inputHand1);
-
-            this.expectedHands.Add(inputHand1);
-
-            this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
-
-            Assert.AreEqual(this.expectedHands.Count, this.outputHands.Count);
-            CollectionAssert.AreEqual(this.expectedHands, this.outputHands);
-        }
-
-        [TestMethod]
-        public void Having2DifferentThreeOfAKindHandsReturnsProperResult()
-        {
-            var inputHand1 = new Hand
-                (
-                    new List<Card>()
-                    {
+                        new Card(CardFace.Nine, CardSuit.Clubs),
                         new Card(CardFace.Eight, CardSuit.Clubs),
-                        new Card(CardFace.Eight, CardSuit.Diamonds),
-                        new Card(CardFace.Eight, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.King, CardSuit.Spades)
+                        new Card(CardFace.Two, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
+                );
+
+            this.inputHands.Add(inputHand1);
+
+            this.expectedHands.Add(inputHand1);
+
+            this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
+
+            Assert.AreEqual(this.expectedHands.Count, this.outputHands.Count);
+            CollectionAssert.AreEqual(this.expectedHands, this.outputHands);
+        }
+
+        [TestMethod]
+        public void Having2DifferentFlushHandsReturnsProperResult()
+        {
+            var inputHand1 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Ten, CardSuit.Clubs),
+                        new Card(CardFace.Eight, CardSuit.Clubs),
+                        new Card(CardFace.Five, CardSuit.Clubs),
+                        new Card(CardFace.Four, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Clubs)
+                    },
+                    HandValue.Flush
                 );
 
             var inputHand2 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.King, CardSuit.Hearts),
-                        new Card(CardFace.King, CardSuit.Diamonds),
                         new Card(CardFace.King, CardSuit.Clubs),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Eight, CardSuit.Spades)
+                        new Card(CardFace.Ten, CardSuit.Clubs),
+                        new Card(CardFace.Eight, CardSuit.Clubs),
+                        new Card(CardFace.Five, CardSuit.Clubs),
+                        new Card(CardFace.Four, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             this.inputHands.Add(inputHand1);
@@ -101,32 +101,32 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         }
 
         [TestMethod]
-        public void Having2SameThreeOfAKindHandsReturnsProperResult()
+        public void Having2SameFlushHandsReturnsProperResult()
         {
             var inputHand1 = new Hand
                 (
                     new List<Card>()
                     {
+                        new Card(CardFace.King, CardSuit.Clubs),
                         new Card(CardFace.Ten, CardSuit.Clubs),
-                        new Card(CardFace.Ten, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
-                        new Card(CardFace.Queen, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.Eight, CardSuit.Clubs),
+                        new Card(CardFace.Five, CardSuit.Clubs),
+                        new Card(CardFace.Four, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand2 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Ten, CardSuit.Spades),
-                        new Card(CardFace.Ten, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
-                        new Card(CardFace.Queen, CardSuit.Spades),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.King, CardSuit.Clubs),
+                        new Card(CardFace.Ten, CardSuit.Clubs),
+                        new Card(CardFace.Eight, CardSuit.Clubs),
+                        new Card(CardFace.Five, CardSuit.Clubs),
+                        new Card(CardFace.Four, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             this.inputHands.Add(inputHand1);
@@ -142,32 +142,32 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         }
 
         [TestMethod]
-        public void Having4DifferentThreeOfAKindHandsReturnsProperResult()
+        public void Having4DifferentFlushHandsReturnsProperResult()
         {
             var inputHand1 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Four, CardSuit.Diamonds),
-                        new Card(CardFace.Four, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.King, CardSuit.Clubs),
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Six, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand2 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Ace, CardSuit.Diamonds),
-                        new Card(CardFace.Ace, CardSuit.Hearts),
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.King, CardSuit.Clubs),
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand3 = new Hand
@@ -175,25 +175,25 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
                     new List<Card>()
                     {
                         new Card(CardFace.King, CardSuit.Clubs),
-                        new Card(CardFace.King, CardSuit.Diamonds),
-                        new Card(CardFace.King, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Ten, CardSuit.Clubs),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand4 = new Hand
                 (
                     new List<Card>()
                     {
+                        new Card(CardFace.King, CardSuit.Clubs),
                         new Card(CardFace.Jack, CardSuit.Clubs),
-                        new Card(CardFace.Jack, CardSuit.Diamonds),
-                        new Card(CardFace.Jack, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.King, CardSuit.Spades)
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Six, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             this.inputHands.Add(inputHand1);
@@ -201,7 +201,7 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
             this.inputHands.Add(inputHand3);
             this.inputHands.Add(inputHand4);
 
-            this.expectedHands.Add(inputHand2);
+            this.expectedHands.Add(inputHand3);
 
             this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
 
@@ -210,32 +210,32 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         }
 
         [TestMethod]
-        public void Having4DifferentThreeOfAKindHandsWith2EqualWinningHandsReturnsProperResult()
+        public void Having4DifferentFlushHandsWith2EqualWinningHandsReturnsProperResult()
         {
             var inputHand1 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Four, CardSuit.Diamonds),
-                        new Card(CardFace.Four, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.King, CardSuit.Clubs),
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Ten, CardSuit.Clubs),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand2 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Ace, CardSuit.Diamonds),
-                        new Card(CardFace.Ace, CardSuit.Hearts),
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.King, CardSuit.Clubs),
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand3 = new Hand
@@ -243,25 +243,25 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
                     new List<Card>()
                     {
                         new Card(CardFace.King, CardSuit.Clubs),
-                        new Card(CardFace.King, CardSuit.Diamonds),
-                        new Card(CardFace.King, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Ten, CardSuit.Clubs),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand4 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Ace, CardSuit.Diamonds),
-                        new Card(CardFace.Ace, CardSuit.Spades),
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.King, CardSuit.Clubs),
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Six, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             this.inputHands.Add(inputHand1);
@@ -269,8 +269,8 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
             this.inputHands.Add(inputHand3);
             this.inputHands.Add(inputHand4);
 
-            this.expectedHands.Add(inputHand2);
-            this.expectedHands.Add(inputHand4);
+            this.expectedHands.Add(inputHand1);
+            this.expectedHands.Add(inputHand3);
 
             this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
 
@@ -279,87 +279,7 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         }
 
         [TestMethod]
-        public void Having2SameThreeOfAKindHandsWithDifferentFirstHighCardReturnsProperResult()
-        {
-            var inputHand1 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ten, CardSuit.Clubs),
-                        new Card(CardFace.Ten, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
-                        new Card(CardFace.Jack, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
-                    },
-                    HandValue.ThreeOfAKind
-                );
-
-            var inputHand2 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ten, CardSuit.Clubs),
-                        new Card(CardFace.Ten, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Seven, CardSuit.Spades)
-                    },
-                    HandValue.ThreeOfAKind
-                );
-
-            this.inputHands.Add(inputHand1);
-            this.inputHands.Add(inputHand2);
-
-            this.expectedHands.Add(inputHand2);
-
-            this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
-
-            Assert.AreEqual(this.expectedHands.Count, this.outputHands.Count);
-            CollectionAssert.AreEqual(this.expectedHands, this.outputHands);
-        }
-
-        [TestMethod]
-        public void Having2SameThreeOfAKindHandsWithDifferentLastHighCardReturnsProperResult()
-        {
-            var inputHand1 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ten, CardSuit.Clubs),
-                        new Card(CardFace.Ten, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
-                    },
-                    HandValue.ThreeOfAKind
-                );
-
-            var inputHand2 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ten, CardSuit.Clubs),
-                        new Card(CardFace.Ten, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Seven, CardSuit.Spades)
-                    },
-                    HandValue.ThreeOfAKind
-                );
-
-            this.inputHands.Add(inputHand1);
-            this.inputHands.Add(inputHand2);
-
-            this.expectedHands.Add(inputHand2);
-
-            this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
-
-            Assert.AreEqual(this.expectedHands.Count, this.outputHands.Count);
-            CollectionAssert.AreEqual(this.expectedHands, this.outputHands);
-        }
-
-        [TestMethod]
-        public void Having1ThreeOfAKindHandVs1TwoPairHandVs1OnePairHandVsHighCardHandReturnsProperResult()
+        public void Having1FlushHandVs1StraightHandVs1ThreeOfAKindHandVs1TwoPairHandVs1OnePairHandVsHighCardHandReturnsProperResult()
         {
             var inputHand1 = new Hand
                 (
@@ -378,71 +298,16 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Three, CardSuit.Clubs),
-                        new Card(CardFace.Three, CardSuit.Diamonds),
-                        new Card(CardFace.Three, CardSuit.Hearts),
+                        new Card(CardFace.Nine, CardSuit.Clubs),
                         new Card(CardFace.Seven, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.Five, CardSuit.Clubs),
+                        new Card(CardFace.Four, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Clubs)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.Flush
                 );
 
             var inputHand3 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Ace, CardSuit.Diamonds),
-                        new Card(CardFace.King, CardSuit.Hearts),
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Three, CardSuit.Spades)
-                    },
-                    HandValue.OnePair
-                );
-
-            var inputHand4 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.King, CardSuit.Diamonds),
-                        new Card(CardFace.Jack, CardSuit.Hearts),
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Three, CardSuit.Spades)
-                    },
-                    HandValue.HighCard
-                );
-
-            this.inputHands.Add(inputHand1);
-            this.inputHands.Add(inputHand2);
-            this.inputHands.Add(inputHand3);
-            this.inputHands.Add(inputHand4);
-
-            this.expectedHands.Add(inputHand2);
-
-            this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
-
-            Assert.AreEqual(this.expectedHands.Count, this.outputHands.Count);
-            CollectionAssert.AreEqual(this.expectedHands, this.outputHands);
-        }
-
-        [TestMethod]
-        public void Having2EqualThreeOfAKindHandsVs1TwoPairHandVs1OnePairHandVsHighCardHandReturnsProperResult()
-        {
-            var inputHand1 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.Ace, CardSuit.Diamonds),
-                        new Card(CardFace.Ten, CardSuit.Hearts),
-                        new Card(CardFace.Ten, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
-                    },
-                    HandValue.TwoPairs
-                );
-
-            var inputHand2 = new Hand
                 (
                     new List<Card>()
                     {
@@ -455,7 +320,7 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
                     HandValue.ThreeOfAKind
                 );
 
-            var inputHand3 = new Hand
+            var inputHand4 = new Hand
                 (
                     new List<Card>()
                     {
@@ -466,32 +331,32 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
                         new Card(CardFace.Three, CardSuit.Spades)
                     },
                     HandValue.OnePair
-                );
-
-            var inputHand4 = new Hand
-                (
-                    new List<Card>()
-                    {
-                        new Card(CardFace.Ace, CardSuit.Clubs),
-                        new Card(CardFace.King, CardSuit.Diamonds),
-                        new Card(CardFace.Jack, CardSuit.Hearts),
-                        new Card(CardFace.Four, CardSuit.Clubs),
-                        new Card(CardFace.Three, CardSuit.Spades)
-                    },
-                    HandValue.HighCard
                 );
 
             var inputHand5 = new Hand
                 (
                     new List<Card>()
                     {
-                        new Card(CardFace.Three, CardSuit.Clubs),
-                        new Card(CardFace.Three, CardSuit.Diamonds),
-                        new Card(CardFace.Three, CardSuit.Hearts),
-                        new Card(CardFace.Seven, CardSuit.Clubs),
-                        new Card(CardFace.Two, CardSuit.Spades)
+                        new Card(CardFace.Ace, CardSuit.Clubs),
+                        new Card(CardFace.King, CardSuit.Diamonds),
+                        new Card(CardFace.Jack, CardSuit.Hearts),
+                        new Card(CardFace.Four, CardSuit.Clubs),
+                        new Card(CardFace.Three, CardSuit.Spades)
                     },
-                    HandValue.ThreeOfAKind
+                    HandValue.HighCard
+                );
+
+            var inputHand6 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Ace, CardSuit.Clubs),
+                        new Card(CardFace.King, CardSuit.Diamonds),
+                        new Card(CardFace.Queen, CardSuit.Hearts),
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Ten, CardSuit.Spades)
+                    },
+                    HandValue.Straight
                 );
 
             this.inputHands.Add(inputHand1);
@@ -499,9 +364,120 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
             this.inputHands.Add(inputHand3);
             this.inputHands.Add(inputHand4);
             this.inputHands.Add(inputHand5);
+            this.inputHands.Add(inputHand6);
 
             this.expectedHands.Add(inputHand2);
-            this.expectedHands.Add(inputHand5);
+
+            this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
+
+            Assert.AreEqual(this.expectedHands.Count, this.outputHands.Count);
+            CollectionAssert.AreEqual(this.expectedHands, this.outputHands);
+        }
+
+        [TestMethod]
+        public void Having2EqualFlushHandsVs1StraightHandsVs1ThreeOfAKindHandVs1TwoPairHandVs1OnePairHandVsHighCardHandReturnsProperResult()
+        {
+            var inputHand1 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Ace, CardSuit.Clubs),
+                        new Card(CardFace.Ace, CardSuit.Diamonds),
+                        new Card(CardFace.Ten, CardSuit.Hearts),
+                        new Card(CardFace.Ten, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Spades)
+                    },
+                    HandValue.TwoPairs
+                );
+
+            var inputHand2 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Five, CardSuit.Clubs),
+                        new Card(CardFace.Four, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Clubs)
+                    },
+                    HandValue.Flush
+                );
+
+            var inputHand3 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Three, CardSuit.Clubs),
+                        new Card(CardFace.Three, CardSuit.Diamonds),
+                        new Card(CardFace.Three, CardSuit.Hearts),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Spades)
+                    },
+                    HandValue.ThreeOfAKind
+                );
+
+            var inputHand4 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Nine, CardSuit.Clubs),
+                        new Card(CardFace.Seven, CardSuit.Clubs),
+                        new Card(CardFace.Five, CardSuit.Clubs),
+                        new Card(CardFace.Four, CardSuit.Clubs),
+                        new Card(CardFace.Two, CardSuit.Clubs)
+                    },
+                    HandValue.Flush
+                );
+
+            var inputHand5 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Ace, CardSuit.Clubs),
+                        new Card(CardFace.Ace, CardSuit.Diamonds),
+                        new Card(CardFace.King, CardSuit.Hearts),
+                        new Card(CardFace.Four, CardSuit.Clubs),
+                        new Card(CardFace.Three, CardSuit.Spades)
+                    },
+                    HandValue.OnePair
+                );
+
+            var inputHand6 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Ace, CardSuit.Clubs),
+                        new Card(CardFace.King, CardSuit.Diamonds),
+                        new Card(CardFace.Jack, CardSuit.Hearts),
+                        new Card(CardFace.Four, CardSuit.Clubs),
+                        new Card(CardFace.Three, CardSuit.Spades)
+                    },
+                    HandValue.HighCard
+                );
+
+            var inputHand7 = new Hand
+                (
+                    new List<Card>()
+                    {
+                        new Card(CardFace.Ace, CardSuit.Clubs),
+                        new Card(CardFace.King, CardSuit.Diamonds),
+                        new Card(CardFace.Queen, CardSuit.Hearts),
+                        new Card(CardFace.Jack, CardSuit.Clubs),
+                        new Card(CardFace.Ten, CardSuit.Spades)
+                    },
+                    HandValue.Straight
+                );
+
+            this.inputHands.Add(inputHand1);
+            this.inputHands.Add(inputHand2);
+            this.inputHands.Add(inputHand3);
+            this.inputHands.Add(inputHand4);
+            this.inputHands.Add(inputHand5);
+            this.inputHands.Add(inputHand6);
+            this.inputHands.Add(inputHand7);
+
+            this.expectedHands.Add(inputHand2);
+            this.expectedHands.Add(inputHand4);
 
             this.outputHands = this.handComparer.GetWinningHands(this.inputHands);
 

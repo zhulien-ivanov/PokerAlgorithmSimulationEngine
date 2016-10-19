@@ -57,6 +57,10 @@
     <Compile Include="HandComparerTests\OnePairTests.cs" />
     <Compile Include="HandComparerTests\TwoPairTests.cs" />
     <Compile Include="HandComparerTests\ThreeOfAKindTests.cs" />
+    <Compile Include="HandComparerTests\StraightTests.cs" />
+    <Compile Include="HandComparerTests\FlushTests.cs" />
+    <Compile Include="HandComparerTests\FullHouseTests.cs" />
+    <Compile Include="HandComparerTests\FourOfAKindTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="HandEvaluatorTests\StraightFlushTests.cs" />
     <Compile Include="HandEvaluatorTests\FourOfAKindTests.cs" />
