@@ -58,7 +58,10 @@ namespace PokerEngine.Models
 
             // remove bankrupt players + check for winner
             // create new draw
-        }
+            // should increase blind amounts?
+
+            // prepare new draw
+        }        
 
         private TableContext BuildContext()
         {

@@ -11,21 +11,11 @@ namespace PokerEngine
     {
         static void Main(string[] args)
         {
-            var handEvaluator = new HandEvaluator();
+            var deck = new Deck();
 
-            var cards = new List<Card>();
+            Console.WriteLine();
 
-            cards.Add(new Card(CardFace.Ace, CardSuit.Clubs));
-            cards.Add(new Card(CardFace.Ace, CardSuit.Spades));
-            cards.Add(new Card(CardFace.Ace, CardSuit.Diamonds));
-            cards.Add(new Card(CardFace.King, CardSuit.Diamonds));
-            cards.Add(new Card(CardFace.King, CardSuit.Diamonds));
-            cards.Add(new Card(CardFace.Three, CardSuit.Diamonds));
-            cards.Add(new Card(CardFace.Four, CardSuit.Diamonds));
-
-            Hand hand;
-
-            hand = handEvaluator.EvaluateHand(cards);
+            deck.Shuffle();
 
             Console.WriteLine();
         }
