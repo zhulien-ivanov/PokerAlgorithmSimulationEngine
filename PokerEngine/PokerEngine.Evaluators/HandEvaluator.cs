@@ -51,7 +51,7 @@ namespace PokerEngine.Evaluators
                 this.faceDictionary[card.CardFace].Add(card);
             }
 
-            this.faceDictionary = this.faceDictionary.OrderByDescending(x => x.Value.Count).ThenByDescending(x => (int)x.Key).ToDictionary(x => x.Key, x => x.Value); ;
+            this.faceDictionary = this.faceDictionary.OrderByDescending(x => x.Value.Count).ThenByDescending(x => (int)x.Key).ToDictionary(x => x.Key, x => x.Value);
             // SETUP FACE DICTIONARY - END
 
             var hand = new List<Card>();

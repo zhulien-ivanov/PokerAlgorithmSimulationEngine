@@ -2,6 +2,6 @@
 {
     public interface IBlindsEvaluator
     {
-        decimal GetSmallBlindAmount(TableContext context);
+        decimal GetSmallBlindAmount(DrawContext context);
     }
 }

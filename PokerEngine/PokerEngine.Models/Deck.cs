@@ -8,7 +8,7 @@ namespace PokerEngine.Models
 {
     public class Deck
     {
-        private List<Card> cards;
+        private IList<Card> cards;
         private Random randomGenerator;
 
         public Deck()
@@ -79,6 +79,7 @@ namespace PokerEngine.Models
 
         public List<Card> Cards
         {
+            // RETURN COPY OF THE DECK(READONLY DECK IS NOT AN OPTION DUE TO SHUFFLE)
             get { return new List<Card>(this.cards); }
             private set { this.cards = value; }
         }

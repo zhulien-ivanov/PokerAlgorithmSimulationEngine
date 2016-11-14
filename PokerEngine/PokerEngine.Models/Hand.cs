@@ -19,13 +19,13 @@ namespace PokerEngine.Models
         public List<Card> Cards
         {
             get { return this.cards; }
-            set { this.cards = value; }
+            internal set { this.cards = value; }
         }
 
         public HandValue HandValue
         {
             get { return this.handValue; }
-            set { this.handValue = value; }
+            internal set { this.handValue = value; }
         }
     }
 }

@@ -5,6 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 
 using PokerEngine.Models.Contracts;
+using PokerEngine.Models.Enumerations;
+using PokerEngine.Models.Helpers;
+using PokerEngine.Models.GameContexts;
 
 namespace PokerEngine.Models
 {
@@ -13,7 +16,7 @@ namespace PokerEngine.Models
         private Random randomGenerator;
         private int currentDealerIndex;
 
-        private List<Player> players;        
+        private List<Player> players;
         private List<Draw> draws;
 
         private Draw currentDraw;
@@ -35,19 +38,19 @@ namespace PokerEngine.Models
         public List<Player> Players
         {
             get { return this.players; }
-            set { this.players = value; }
+            internal set { this.players = value; }
         }
 
         public List<Draw> Draws
         {
             get { return this.draws; }
-            set { this.draws = value; }
+            internal set { this.draws = value; }
         }
 
         public Draw CurrentDraw
         {
             get { return this.currentDraw; }
-            set { this.currentDraw = value; }
+            internal set { this.currentDraw = value; }
         }
 
         private void AdvanceToNextDraw()
@@ -61,11 +64,6 @@ namespace PokerEngine.Models
             // should increase blind amounts?
 
             // prepare new draw
-        }        
-
-        private TableContext BuildContext()
-        {
-            throw new NotImplementedException();
         }
     }
 }

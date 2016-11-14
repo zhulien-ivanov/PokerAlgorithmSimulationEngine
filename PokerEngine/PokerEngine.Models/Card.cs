@@ -16,13 +16,13 @@ namespace PokerEngine.Models
         public CardFace CardFace
         {
             get { return this.cardFace; }
-            set { this.cardFace = value; }
+            private set { this.cardFace = value; }
         }
 
         public CardSuit CardSuit
         {
             get { return this.cardSuit; }
-            set { this.cardSuit = value; }
+            private set { this.cardSuit = value; }
         }
 
         public override bool Equals(object obj)

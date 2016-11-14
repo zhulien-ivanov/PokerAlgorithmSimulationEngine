@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using PokerEngine.Models.Enumerations;
+using PokerEngine.Models.GameContexts;
+using PokerEngine.Models.Helpers;
 
 namespace PokerEngine.Models
 {
@@ -18,6 +21,9 @@ namespace PokerEngine.Models
         private decimal smallBlindAmount;
         private decimal bigBlindAmount;
 
+        private DrawContext drawContext;
+        private StartGameContextInformation startGameContext;
+
         public Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount)
         {
             this.GameStage = GameStage.PreFlop;
@@ -33,66 +39,146 @@ namespace PokerEngine.Models
 
             this.SmallBlindAmount = smallBlindAmount;
             this.BigBlindAmount = this.SmallBlindAmount * 2;
+
+            this.drawContext = this.BuildInitialContext();
+            this.startGameContext = this.BuildStartGameContext();
         }
 
         public GameStage GameStage
         {
             get { return this.gameStage; }
-            set { this.gameStage = value; }
+            internal set { this.gameStage = value; }
         }
 
         public decimal CurrentPot
         {
             get { return this.currentPot; }
-            set { this.currentPot = value; }
+            internal set { this.currentPot = value; }
         }
 
         public List<Player> Players
         {
             get { return this.players; }
-            set { this.players = value; }
+            internal set { this.players = value; }
         }
 
         public List<Card> TableCards
         {
             get { return this.tableCards; }
-            set { this.tableCards = value; }
+            internal set { this.tableCards = value; }
         }
 
         public List<PlayerAction> PlayerActions
         {
             get { return this.playerActions; }
-            set { this.playerActions = value; }
+            internal set { this.playerActions = value; }
         }
 
         public Player DealerPosition
         {
             get { return this.dealerPosition; }
-            set { this.dealerPosition = value; }
+            internal set { this.dealerPosition = value; }
         }
 
         public Player SmallBlindPosition
         {
             get { return this.smallBlindPosition; }
-            set { this.smallBlindPosition = value; }
+            internal set { this.smallBlindPosition = value; }
         }
 
         public Player BigBlindPosition
         {
             get { return this.bigBlindPosition; }
-            set { this.bigBlindPosition = value; }
+            internal set { this.bigBlindPosition = value; }
         }
 
         public decimal SmallBlindAmount
         {
             get { return this.smallBlindAmount; }
-            set { this.smallBlindAmount = value; }
+            internal set { this.smallBlindAmount = value; }
         }
 
         public decimal BigBlindAmount
         {
             get { return this.bigBlindAmount; }
-            set { this.bigBlindAmount = value; }
+            internal set { this.bigBlindAmount = value; }
         }
+
+        // Build general game context(caching)
+        private DrawContext BuildInitialContext()
+        {
+            DrawContext drawContext;
+
+            var contextPlayers = this.Players.Select(x => new PlayerInformation(x.Name, x.Money)).ToList();
+            PlayerInformation dealerPosition = contextPlayers.FirstOrDefault(x => x.Name == this.DealerPosition.Name);
+            PlayerInformation smallBlindPosition = contextPlayers.FirstOrDefault(x => x.Name == this.SmallBlindPosition.Name);
+            PlayerInformation bigBlindPosition = contextPlayers.FirstOrDefault(x => x.Name == this.BigBlindPosition.Name);
+
+            drawContext = new DrawContext(contextPlayers, dealerPosition, smallBlindPosition, bigBlindPosition);
+
+            return drawContext;
+        }
+
+        // Build common start game context
+        private StartGameContextInformation BuildStartGameContext()
+        {
+            StartGameContextInformation context;
+
+            IReadOnlyCollection<PlayerInformation> players = this.drawContext.Players.AsReadOnly();
+
+            PlayerInformation dealerPosition = this.drawContext.DealerPosition;
+            PlayerInformation smallBlindPosition = this.drawContext.SmallBlindPosition;
+            PlayerInformation bigBlindPosition = this.drawContext.BigBlindPosition;
+
+            decimal smallBlindAmount = this.SmallBlindAmount;
+            decimal bigBlindAmount = this.BigBlindAmount;
+
+            context = new StartGameContextInformation(players, dealerPosition, smallBlindPosition, bigBlindPosition, smallBlindAmount, bigBlindAmount);
+
+            return context;
+        }
+
+        // Build start game context for each player
+        internal StartGameContext GetStartGameContextForPlayer(string playerName)
+        {
+            IReadOnlyCollection<Card> playerCards = this.Players.FirstOrDefault(x => x.Name == playerName).Cards.AsReadOnly();
+
+            var context = new StartGameContext(this.startGameContext, playerCards);
+
+            return context;
+        }
+
+        // Build turn game context for each player
+        internal TurnContext GetTurnContextForPlayer(string playerName)
+        {
+            List<PlayerActionInformation> playerActionsList;
+            IReadOnlyCollection<PlayerActionInformation> playerActions;
+
+            var lastActionIndex = this.drawContext.PlayerActions.FindLastIndex(x => x.Player.Name == playerName);
+
+            if (lastActionIndex < 0)
+            {
+                playerActions = this.drawContext.PlayerActions.AsReadOnly();
+            }
+            else
+            {
+                playerActionsList  = new List<PlayerActionInformation>();
+
+                for (int i = lastActionIndex + 1; i < this.drawContext.PlayerActions.Count; i++)
+                {
+                    playerActionsList.Add(this.drawContext.PlayerActions[i]);
+                }
+
+                playerActions = playerActionsList.AsReadOnly();
+            }
+
+            IReadOnlyCollection<Card> tableCards = this.TableCards.AsReadOnly();
+
+            TurnContext context = new TurnContext(this.GameStage, playerActions, tableCards, this.CurrentPot);
+
+            return context;
+        }
+
+        // Build end game context
     }
 }

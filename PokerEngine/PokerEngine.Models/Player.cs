@@ -7,6 +7,7 @@ namespace PokerEngine.Models
         private string name;
         private decimal money;
         private List<Card> cards;
+        private Hand hand;
 
         public Player(string name, decimal money)
         {
@@ -25,13 +26,19 @@ namespace PokerEngine.Models
         public decimal Money
         {
             get { return this.money; }
-            set { this.money = value; }
-        }
+            internal set { this.money = value; }
+        }        
 
         public List<Card> Cards
         {
             get { return this.cards; }
-            set { this.cards = value; }
+            internal set { this.cards = value; }
+        }
+
+        public Hand Hand
+        {
+            get { return this.hand; }
+            internal set { this.hand = value; }
         }
     }
 }
