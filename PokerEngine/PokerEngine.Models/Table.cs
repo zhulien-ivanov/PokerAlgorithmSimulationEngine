@@ -55,15 +55,18 @@ namespace PokerEngine.Models
 
         private void AdvanceToNextDraw()
         {
+            // add finished draw to the draw history
+            this.Draws.Add(this.CurrentDraw);
+
             this.currentDealerIndex = (this.currentDealerIndex + 1) % this.Players.Count;
 
-            // add finished draw to the draw history
+            // remove bankrupt players + check for winner -- NO!            
 
-            // remove bankrupt players + check for winner
             // create new draw
-            // should increase blind amounts?
+            // should increase blind amounts? -- calculate new blinds via the blindEvaluator
 
             // prepare new draw
+            //this.CurrentDraw = new Draw(this.CurrentDraw.Players, this.currentDealerIndex, this.blindsEvaluator.GetSmallBlindAmount(this.BuildContext()));
         }
     }
 }

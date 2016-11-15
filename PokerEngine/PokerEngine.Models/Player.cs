@@ -40,5 +40,22 @@ namespace PokerEngine.Models
             get { return this.hand; }
             internal set { this.hand = value; }
         }
+
+        public override bool Equals(object secondPlayerObject)
+        {
+            var secondPlayer = secondPlayerObject as Player;
+
+            return this.Name.Equals(secondPlayer.Name);
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Name.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return this.Name;
+        }
     }
 }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 using PokerEngine.Models.Enumerations;
@@ -11,7 +10,7 @@ namespace PokerEngine.Models
     public class Draw
     {
         private GameStage gameStage;
-        private decimal currentPot;
+        private decimal potAmount;
         private List<Player> players;
         private List<Card> tableCards;
         private List<PlayerAction> playerActions;
@@ -21,10 +20,18 @@ namespace PokerEngine.Models
         private decimal smallBlindAmount;
         private decimal bigBlindAmount;
 
+        // PLAYER MONEY AMOUNT IN THE POT, USED FOR INFO/ CALL AND RAISE, CHECK FOR ALL IN, CHECK FOR WINNING AMOUNT AND DECIDING THE NEXT WINNERS
+        private Dictionary<string, PlayerPotInformation> playersPotInformation;
+
+        private List<Pot> pots;
+        private Pot currentPot;
+
+        private Deck deck;
+
         private DrawContext drawContext;
         private StartGameContextInformation startGameContext;
 
-        public Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount)
+        public Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck)
         {
             this.GameStage = GameStage.PreFlop;
 
@@ -40,6 +47,12 @@ namespace PokerEngine.Models
             this.SmallBlindAmount = smallBlindAmount;
             this.BigBlindAmount = this.SmallBlindAmount * 2;
 
+            this.pots = new List<Pot>();
+            this.currentPot = new Pot(0, 0, this.Players);
+            this.pots.Add(this.currentPot);
+
+            this.deck = deck;
+
             this.drawContext = this.BuildInitialContext();
             this.startGameContext = this.BuildStartGameContext();
         }
@@ -50,10 +63,10 @@ namespace PokerEngine.Models
             internal set { this.gameStage = value; }
         }
 
-        public decimal CurrentPot
+        public decimal PotAmount
         {
-            get { return this.currentPot; }
-            internal set { this.currentPot = value; }
+            get { return this.potAmount; }
+            internal set { this.potAmount = value; }
         }
 
         public List<Player> Players
@@ -180,5 +193,40 @@ namespace PokerEngine.Models
         }
 
         // Build end game context
+        // TO DO!!!!
+
+
+        internal void StartDraw()
+        {
+            // shuffle cards
+            this.deck.Shuffle();
+
+            // deal cards
+
+            // sb and bb pay blinds
+            
+        }        
+
+        private void PlayerCheck(Player player)
+        {
+
+        }
+
+        private void PlayerCall(Player player, decimal amountToCall)
+        {
+            // check if can pay.
+
+            player.Money -= amountToCall;
+        }
+
+        private void PlayerRaise(Player player, decimal amountToRaise)
+        {
+
+        }
+
+        private void PlayerFold(Player player)
+        {
+
+        }
     }
 }
