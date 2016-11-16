@@ -7,7 +7,7 @@ namespace PokerEngine.Models
         private decimal amount;
         private decimal currentMaxStake;
         private List<Player> potentialWinners;
-        //private Dictionary<Player, decimal> currentPotAmount;
+        private Dictionary<string, decimal> currentPotAmount;
 
         public Pot(decimal amount, decimal currentMaxStake, List<Player> potentialWinners)
         {
@@ -34,10 +34,10 @@ namespace PokerEngine.Models
             private set { this.potentialWinners = value; }
         }
 
-        //public Dictionary<Player, decimal> CurrentPotAmount
-        //{
-        //    get { return this.currentPotAmount; }
-        //    private set { this.currentPotAmount = value; }
-        //}
+        public Dictionary<string, decimal> CurrentPotAmount
+        {
+            get { return this.currentPotAmount; }
+            private set { this.currentPotAmount = value; }
+        }
     }
 }

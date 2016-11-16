@@ -10,7 +10,7 @@ namespace PokerEngine.Models
     public class Draw
     {
         private GameStage gameStage;
-        private decimal potAmount;
+        private decimal fullPotAmount;
         private List<Player> players;
         private List<Card> tableCards;
         private List<PlayerAction> playerActions;
@@ -47,10 +47,6 @@ namespace PokerEngine.Models
             this.SmallBlindAmount = smallBlindAmount;
             this.BigBlindAmount = this.SmallBlindAmount * 2;
 
-            this.pots = new List<Pot>();
-            this.currentPot = new Pot(0, 0, this.Players);
-            this.pots.Add(this.currentPot);
-
             this.deck = deck;
 
             this.drawContext = this.BuildInitialContext();
@@ -63,10 +59,10 @@ namespace PokerEngine.Models
             internal set { this.gameStage = value; }
         }
 
-        public decimal PotAmount
+        public decimal FullPotAmount
         {
-            get { return this.potAmount; }
-            internal set { this.potAmount = value; }
+            get { return this.fullPotAmount; }
+            internal set { this.fullPotAmount = value; }
         }
 
         public List<Player> Players
@@ -198,25 +194,55 @@ namespace PokerEngine.Models
 
         internal void StartDraw()
         {
-            // shuffle cards
+            // Create main pot
+            this.pots = new List<Pot>();
+            this.currentPot = new Pot(0, 0, this.Players);
+            this.pots.Add(this.currentPot);
+
+            // Shuffle cards
             this.deck.Shuffle();
+
+            // SB and BB pay
+            this.PaySmallBlind();
+            this.PayBigBlind();
 
             // deal cards
 
-            // sb and bb pay blinds
-            
-        }        
 
-        private void PlayerCheck(Player player)
-        {
 
         }
 
-        private void PlayerCall(Player player, decimal amountToCall)
+        private void InvestToPot(Player player, decimal amountToPay)
         {
-            // check if can pay.
+            if (amountToPay < player.Money)
+            {
+                player.Money -= amountToPay;
+                this.currentPot.Amount += amountToPay;
+            }
+            else
+            {
+                player.Money = 0;
+                this.currentPot.Amount += player.Money;
+                this.playersPotInformation[player.ToString()].IsAllIn = true;
 
-            player.Money -= amountToCall;
+                // migrate to new pot after all pay
+                // TODO!!!!
+            }
+        }
+
+        private void PaySmallBlind()
+        {
+            this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount);
+        }
+
+        private void PayBigBlind()
+        {
+            this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount);
+        }
+
+        private void PlayerCall(Player player)
+        {
+            this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()]);
         }
 
         private void PlayerRaise(Player player, decimal amountToRaise)
@@ -224,7 +250,17 @@ namespace PokerEngine.Models
 
         }
 
+        private void PlayerCheck(Player player)
+        {
+
+        }
+
         private void PlayerFold(Player player)
+        {
+
+        }
+
+        private void MigrateToNewPot()
         {
 
         }
