@@ -10,6 +10,7 @@ namespace PokerEngine.Models
     {
         private IList<Card> cards;
         private Random randomGenerator;
+        private int currentCardIndex;
 
         public Deck()
         {
@@ -73,15 +74,9 @@ namespace PokerEngine.Models
                     };
 
             this.randomGenerator = new Random();
+            this.currentCardIndex = 0;
 
             this.Shuffle();
-        }
-
-        public List<Card> Cards
-        {
-            // RETURN COPY OF THE DECK(READONLY DECK IS NOT AN OPTION DUE TO SHUFFLE)
-            get { return new List<Card>(this.cards); }
-            private set { this.cards = value; }
         }
 
         public void Shuffle()
@@ -97,6 +92,17 @@ namespace PokerEngine.Models
                 this.cards[i] = this.cards[cardIndex];
                 this.cards[cardIndex] = temp;
             }
+
+            this.currentCardIndex = 0;
+        }
+
+        public Card DealCard()
+        {
+            var card = this.cards[currentCardIndex];
+
+            currentCardIndex++;
+
+            return card;
         }
     }
 }

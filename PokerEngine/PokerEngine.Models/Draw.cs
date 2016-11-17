@@ -14,13 +14,13 @@ namespace PokerEngine.Models
         private List<Player> players;
         private List<Card> tableCards;
         private List<PlayerAction> playerActions;
+        private int dealerIndex;
         private Player dealerPosition;
         private Player smallBlindPosition;
         private Player bigBlindPosition;
         private decimal smallBlindAmount;
         private decimal bigBlindAmount;
 
-        // PLAYER MONEY AMOUNT IN THE POT, USED FOR INFO/ CALL AND RAISE, CHECK FOR ALL IN, CHECK FOR WINNING AMOUNT AND DECIDING THE NEXT WINNERS
         private Dictionary<string, PlayerPotInformation> playersPotInformation;
 
         private List<Pot> pots;
@@ -33,9 +33,9 @@ namespace PokerEngine.Models
 
         public Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck)
         {
-            this.GameStage = GameStage.PreFlop;
-
             this.Players = players;
+
+            this.dealerIndex = dealerIndex;
 
             this.TableCards = new List<Card>();
             this.PlayerActions = new List<PlayerAction>();
@@ -194,6 +194,8 @@ namespace PokerEngine.Models
 
         internal void StartDraw()
         {
+            this.GameStage = GameStage.PreFlop;
+
             // Create main pot
             this.pots = new List<Pot>();
             this.currentPot = new Pot(0, 0, this.Players);
@@ -208,8 +210,21 @@ namespace PokerEngine.Models
 
             // deal cards
 
+            
+        }
 
+        private void DealPlayerCards()
+        {
+            var startIndex = this.dealerIndex + 1;
+            var finishIndex = startIndex + this.Players.Count;
+            int currentPlayerIndex;
 
+            for (int i = startIndex; i < finishIndex; i++)
+            {
+                currentPlayerIndex = i % this.Players.Count;
+
+                this.Players[currentPlayerIndex]
+            }
         }
 
         private void InvestToPot(Player player, decimal amountToPay)
@@ -233,31 +248,34 @@ namespace PokerEngine.Models
         private void PaySmallBlind()
         {
             this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount);
+            // add playerAction
         }
 
         private void PayBigBlind()
         {
             this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount);
+            // add playerAction
         }
 
         private void PlayerCall(Player player)
         {
             this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()]);
+            // add playerAction
         }
 
         private void PlayerRaise(Player player, decimal amountToRaise)
         {
-
+            // add playerAction
         }
 
         private void PlayerCheck(Player player)
         {
-
+            // add playerAction
         }
 
         private void PlayerFold(Player player)
         {
-
+            // add playerAction
         }
 
         private void MigrateToNewPot()
