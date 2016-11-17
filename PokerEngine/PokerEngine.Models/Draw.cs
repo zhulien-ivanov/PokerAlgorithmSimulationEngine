@@ -191,7 +191,6 @@ namespace PokerEngine.Models
         // Build end game context
         // TO DO!!!!
 
-
         internal void StartDraw()
         {
             this.GameStage = GameStage.PreFlop;
@@ -208,9 +207,31 @@ namespace PokerEngine.Models
             this.PaySmallBlind();
             this.PayBigBlind();
 
-            // deal cards
+            // deal player cards
+            this.DealPlayerCards();            
+        }
 
-            
+        private PlayerInformation GetPlayerInformation(Player player)
+        {
+            var playerInfo = this.drawContext.Players.FirstOrDefault(x => x.Name == player.Name);
+
+            return playerInfo;
+        }
+
+        private void SyncPlayerInformation(Player player)
+        {
+            var playerToSync = this.drawContext.Players.FirstOrDefault(x => x.Name == player.Name);
+
+            playerToSync.Money = player.Money;
+        }
+
+        private void FilePlayerAction(PlayerAction playerAction)
+        {
+            this.PlayerActions.Add(playerAction);
+
+            var playerActionInformation = new PlayerActionInformation(this.GetPlayerInformation(playerAction.Player), playerAction.Decision, playerAction.Amount);
+
+            this.drawContext.PlayerActions.Add(playerActionInformation);
         }
 
         private void DealPlayerCards()
@@ -223,16 +244,21 @@ namespace PokerEngine.Models
             {
                 currentPlayerIndex = i % this.Players.Count;
 
-                this.Players[currentPlayerIndex]
+                this.Players[currentPlayerIndex].Cards.Add(this.deck.DealCard());
+                this.Players[currentPlayerIndex].Cards.Add(this.deck.DealCard());
             }
         }
 
-        private void InvestToPot(Player player, decimal amountToPay)
+        private bool InvestToPot(Player player, decimal amountToPay, out decimal amountInvested)
         {
+            bool isAllIn = false;            
+
             if (amountToPay < player.Money)
             {
                 player.Money -= amountToPay;
                 this.currentPot.Amount += amountToPay;
+
+                amountInvested = amountToPay;
             }
             else
             {
@@ -240,27 +266,35 @@ namespace PokerEngine.Models
                 this.currentPot.Amount += player.Money;
                 this.playersPotInformation[player.ToString()].IsAllIn = true;
 
-                // migrate to new pot after all pay
-                // TODO!!!!
+                amountInvested = player.Money;
+                isAllIn = true;
             }
+
+            return isAllIn;
         }
 
         private void PaySmallBlind()
         {
-            this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount);
+            decimal amountInvested;
+
+            this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount, out amountInvested);            
             // add playerAction
         }
 
         private void PayBigBlind()
         {
-            this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount);
+            decimal amountInvested;
+
+            this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount, out amountInvested);
             // add playerAction
         }
 
         private void PlayerCall(Player player)
         {
-            this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()]);
-            // add playerAction
+            decimal amountInvested;
+
+            this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()], out amountInvested);
+            this.FilePlayerAction(new PlayerAction(player, Decision.Call, amountInvested));
         }
 
         private void PlayerRaise(Player player, decimal amountToRaise)
@@ -270,12 +304,14 @@ namespace PokerEngine.Models
 
         private void PlayerCheck(Player player)
         {
-            // add playerAction
+            this.FilePlayerAction(new PlayerAction(player, Decision.Check, 0));
         }
 
         private void PlayerFold(Player player)
         {
-            // add playerAction
+            this.FilePlayerAction(new PlayerAction(player, Decision.Fold, 0));
+
+            // remove player from list
         }
 
         private void MigrateToNewPot()
