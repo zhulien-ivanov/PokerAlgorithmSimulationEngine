@@ -211,6 +211,11 @@ namespace PokerEngine.Models
             this.DealPlayerCards();            
         }
 
+        internal void AdvanceToBetting()
+        {
+
+        }
+
         private PlayerInformation GetPlayerInformation(Player player)
         {
             var playerInfo = this.drawContext.Players.FirstOrDefault(x => x.Name == player.Name);
@@ -229,7 +234,7 @@ namespace PokerEngine.Models
         {
             this.PlayerActions.Add(playerAction);
 
-            var playerActionInformation = new PlayerActionInformation(this.GetPlayerInformation(playerAction.Player), playerAction.Decision, playerAction.Amount);
+            var playerActionInformation = new PlayerActionInformation(this.GetPlayerInformation(playerAction.Player), playerAction.Action, playerAction.Amount);
 
             this.drawContext.PlayerActions.Add(playerActionInformation);
         }
@@ -277,24 +282,24 @@ namespace PokerEngine.Models
         {
             decimal amountInvested;
 
-            this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount, out amountInvested);            
-            // add playerAction
+            var isAllIn = this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount, out amountInvested);
+            this.FilePlayerAction(new PlayerAction(this.SmallBlindPosition, Action.PaySmallBlind, amountInvested, isAllIn));
         }
 
         private void PayBigBlind()
         {
             decimal amountInvested;
 
-            this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount, out amountInvested);
-            // add playerAction
+            var isAllIn = this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount, out amountInvested);            
+            this.FilePlayerAction(new PlayerAction(this.BigBlindPosition, Action.PayBigBlind, amountInvested, isAllIn));
         }
 
         private void PlayerCall(Player player)
         {
             decimal amountInvested;
 
-            this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()], out amountInvested);
-            this.FilePlayerAction(new PlayerAction(player, Decision.Call, amountInvested));
+            var isAllIn = this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()], out amountInvested);
+            this.FilePlayerAction(new PlayerAction(player, Action.Call, amountInvested, isAllIn));
         }
 
         private void PlayerRaise(Player player, decimal amountToRaise)
@@ -304,12 +309,12 @@ namespace PokerEngine.Models
 
         private void PlayerCheck(Player player)
         {
-            this.FilePlayerAction(new PlayerAction(player, Decision.Check, 0));
+            this.FilePlayerAction(new PlayerAction(player, Action.Check, 0, false));
         }
 
         private void PlayerFold(Player player)
         {
-            this.FilePlayerAction(new PlayerAction(player, Decision.Fold, 0));
+            this.FilePlayerAction(new PlayerAction(player, Action.Fold, 0, false));
 
             // remove player from list
         }

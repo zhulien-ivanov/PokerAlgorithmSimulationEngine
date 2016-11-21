@@ -1,6 +1,6 @@
 ﻿namespace PokerEngine.Models.Enumerations
 {
-    public enum HistoricDecision
+    public enum Action
     {
         PaySmallBlind,
         PayBigBlind,

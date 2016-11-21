@@ -5,14 +5,16 @@ namespace PokerEngine.Models.Helpers
     public class PlayerActionInformation
     {
         private PlayerInformation player;
-        private Decision decision;
+        private Action action;
         private decimal amount;
+        private bool isAllIn;
 
-        public PlayerActionInformation(PlayerInformation player, Decision decision, decimal amount)
+        public PlayerActionInformation(PlayerInformation player, Action action, decimal amount, bool isAllIn)
         {
             this.Player = player;
-            this.Decision = decision;
+            this.Action = action;
             this.Amount = amount;
+            this.IsAllIn = isAllIn;
         }
 
         public PlayerInformation Player
@@ -21,10 +23,10 @@ namespace PokerEngine.Models.Helpers
             private set { this.player = value; }
         }
 
-        public Decision Decision
+        public Action Action
         {
-            get { return this.decision; }
-            private set { this.decision = value; }
+            get { return this.action; }
+            private set { this.action = value; }
         }
 
         public decimal Amount
@@ -32,7 +34,7 @@ namespace PokerEngine.Models.Helpers
             get { return this.amount; }
             private set
             {
-                if (this.Decision == Decision.Check || this.Decision == Decision.Fold)
+                if (this.Action == Action.Check || this.Action == Action.Fold)
                 {
                     this.amount = 0;
                 }
@@ -40,6 +42,22 @@ namespace PokerEngine.Models.Helpers
                 {
                     this.amount = value;
                 }
+            }
+        }
+
+        public bool IsAllIn
+        {
+            get { return this.isAllIn; }
+            private set
+            {
+                if (this.Action == Action.Check || this.Action == Action.Fold)
+                {
+                    this.isAllIn = false;
+                }
+                else
+                {
+                    this.isAllIn = value;
+                }                
             }
         }
     }
