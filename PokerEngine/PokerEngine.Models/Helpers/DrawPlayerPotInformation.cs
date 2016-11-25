@@ -1,11 +1,11 @@
 ﻿namespace PokerEngine.Models.Helpers
 {
-    internal class PlayerPotInformation
+    internal class DrawPlayerPotInformation
     {
         private decimal drawPotAmount;
         private bool isAllIn;
 
-        public PlayerPotInformation(decimal drawPotAmount)
+        public DrawPlayerPotInformation(decimal drawPotAmount)
         {
             this.DrawPotAmount = drawPotAmount;
         }
