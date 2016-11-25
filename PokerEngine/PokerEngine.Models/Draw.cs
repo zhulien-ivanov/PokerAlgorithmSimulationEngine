@@ -21,7 +21,7 @@ namespace PokerEngine.Models
         private decimal smallBlindAmount;
         private decimal bigBlindAmount;
 
-        private Dictionary<string, PlayerPotInformation> playersPotInformation;
+        private Dictionary<string, DrawPlayerPotInformation> playersPotInformation;
 
         private List<Pot> pots;
         private Pot currentPot;
@@ -32,7 +32,7 @@ namespace PokerEngine.Models
         private StartGameContextInformation startGameContext;
 
         public Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck)
-        {
+        {            
             this.Players = players;
 
             this.dealerIndex = dealerIndex;
@@ -275,6 +275,13 @@ namespace PokerEngine.Models
                 isAllIn = true;
             }
 
+            if (amountInvested > this.currentPot.CurrentMaxStake)
+            {
+                this.currentPot.CurrentMaxStake = amountInvested;
+            }
+
+            this.currentPot.CurrentPotAmount[player.Name] += amountInvested;
+
             return isAllIn;
         }
 
@@ -302,9 +309,31 @@ namespace PokerEngine.Models
             this.FilePlayerAction(new PlayerAction(player, Action.Call, amountInvested, isAllIn));
         }
 
-        private void PlayerRaise(Player player, decimal amountToRaise)
+        private DecisionFeedback PlayerRaise(Player player, decimal amountToRaise)
         {
-            // add playerAction
+            var wasOperationSuccessful = true;
+            var message = string.Empty;
+            var isAllIn = false;
+
+            // CONSIDER DIFFERENCE FOR CALL + BB
+            var minimalRaiseAmount = (this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.Name]) + this.BigBlindAmount;
+                        
+            if (amountToRaise < minimalRaiseAmount && player.Money > minimalRaiseAmount)
+            {
+                wasOperationSuccessful = false;
+                message = string.Format("Invalid amount for raise. You must raise with at least {0}.", minimalRaiseAmount);
+            }
+            else
+            {
+                decimal amountInvested;
+
+                isAllIn = this.InvestToPot(player, amountToRaise, out amountInvested);
+                this.FilePlayerAction(new PlayerAction(player, Action.Raise, amountInvested, isAllIn));
+            }
+
+            var decisionFeedback = new DecisionFeedback(wasOperationSuccessful, isAllIn, message);
+
+            return decisionFeedback;
         }
 
         private void PlayerCheck(Player player)
@@ -319,7 +348,7 @@ namespace PokerEngine.Models
             // remove player from list
         }
 
-        private void MigrateToNewPot()
+        private void SyncPots()
         {
 
         }
