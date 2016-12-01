@@ -26,7 +26,7 @@ namespace PokerEngine.Models
         private int playersAllInCount;
         private int playersFoldCount;
 
-        private Dictionary<string, DrawPlayerPotInformation> playersPotInformation;
+        private Dictionary<Player, decimal> currentDrawAmount;
 
         private List<Pot> pots;
         private Pot currentPot;
@@ -53,6 +53,8 @@ namespace PokerEngine.Models
             this.BigBlindAmount = this.SmallBlindAmount * 2;
 
             this.firstToBetIndex = (dealerIndex + 3) % this.Players.Count;
+
+            this.currentDrawAmount = new Dictionary<Player, decimal>();
 
             this.deck = deck;
 
@@ -201,6 +203,7 @@ namespace PokerEngine.Models
         internal void StartDraw()
         {
             this.Players.ForEach(x => x.HasFolded = false);
+            this.Players.ForEach(x => x.IsAllIn = false);
 
             this.playersAllInCount = 0;
             this.playersFoldCount = 0;
@@ -296,6 +299,8 @@ namespace PokerEngine.Models
         private void AdvanceToShowdownStage()
         {
             this.GameStage = GameStage.Showdown;
+
+            // build end game context
         }
 
         private BettingOutcome AdvanceToBetting(int firstToBetIndex, bool blindBetting)
@@ -444,11 +449,12 @@ namespace PokerEngine.Models
             {
                 player.Money = 0;
                 this.currentPot.Amount += player.Money;
-                this.playersPotInformation[player.ToString()].IsAllIn = true;
+                player.IsAllIn = true;
 
                 amountInvested = player.Money;
                 isAllIn = true;
 
+                this.currentPot.PlayerWentAllIn = true;
                 this.playersAllInCount++;
             }
 
@@ -457,7 +463,7 @@ namespace PokerEngine.Models
                 this.currentPot.CurrentMaxStake = amountInvested;
             }
 
-            this.currentPot.CurrentPotAmount[player.Name] += amountInvested;
+            this.currentPot.CurrentPotAmount[player] += amountInvested;
 
             return isAllIn;
         }
@@ -480,11 +486,11 @@ namespace PokerEngine.Models
 
         private bool PlayerCall(Player player)
         {
-            if (this.currentPot.CurrentPotAmount[player.Name] < this.currentPot.CurrentMaxStake)
+            if (this.currentPot.CurrentPotAmount[player] < this.currentPot.CurrentMaxStake)
             {
                 decimal amountInvested;
 
-                var isAllIn = this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()], out amountInvested);
+                var isAllIn = this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player], out amountInvested);
                 this.FilePlayerAction(new PlayerAction(player, Action.Call, amountInvested, isAllIn));
 
                 return true;
@@ -499,7 +505,7 @@ namespace PokerEngine.Models
         {
             message = string.Empty;
 
-            var potStakeDifference = this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.Name];
+            var potStakeDifference = this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player];
             var minimalRaiseAmount = potStakeDifference + this.BigBlindAmount;
 
             if (player.Money <= potStakeDifference)
@@ -529,7 +535,7 @@ namespace PokerEngine.Models
 
         private bool PlayerCheck(Player player)
         {
-            if (this.currentPot.CurrentPotAmount[player.Name] == this.currentPot.CurrentMaxStake)
+            if (this.currentPot.CurrentPotAmount[player] == this.currentPot.CurrentMaxStake)
             {
                 this.FilePlayerAction(new PlayerAction(player, Action.Check, 0, false));
                 return true;
@@ -566,7 +572,46 @@ namespace PokerEngine.Models
 
         private void SyncPots()
         {
+            if (this.currentPot.PlayerWentAllIn)
+            {
+                // Take all who are all in
+                // Sort the list descending by pot value
+                var allInPlayersPotAmount = this.currentPot.CurrentPotAmount.Where(x => x.Key.IsAllIn).Select(x => x.Value).Distinct().OrderByDescending(x => x).ToList();
 
+                decimal potAmountDifference;
+                List<Player> playersFullfillingThePotAmount;
+                Pot newPot;
+
+                // Calculate difference between the first and the second pot
+                for (int i = 0; i < allInPlayersPotAmount.Count - 1; i++)
+                {
+                    potAmountDifference = allInPlayersPotAmount[i] - allInPlayersPotAmount[i + 1];
+
+                    playersFullfillingThePotAmount = this.currentPot.CurrentPotAmount.Where(x => x.Value >= allInPlayersPotAmount[i]).Select(x => x.Key).ToList();
+
+                    newPot = new Pot(potAmountDifference * playersFullfillingThePotAmount.Count, 0, playersFullfillingThePotAmount);            
+                }
+
+                // THE REST GOES TO MAIN POT !!!! ^^
+
+
+
+
+
+
+                // create a pot with amount = the difference * the players who are not folded and not all in(can be on the edge, check if all in with the EXACT SUM(sum invested == pot max stake))
+
+                // add the pot to a list
+
+                // REPEAT POT CREATION
+
+                // ASSIGN THE FIRST POT AS CURRENT POT
+
+
+
+
+                // ADD THE POT AMOUNT TO THE DRAW AMOUNT FOR THE PLAYER !!!!!!!!!!!!!!!!!!!!!
+            }
         }
     }
 }

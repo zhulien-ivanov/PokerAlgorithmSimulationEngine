@@ -11,6 +11,7 @@ namespace PokerEngine.Models
         private List<Card> cards;
         private Hand hand;
         private bool hasFolded;
+        private bool isAllIn;
 
         private IDecisionHandler decisionTaker;
 
@@ -21,6 +22,7 @@ namespace PokerEngine.Models
 
             this.Cards = new List<Card>();
             this.HasFolded = false;
+            this.IsAllIn = false;
 
             this.DecisionTaker = decisionTaker;
         }
@@ -53,6 +55,12 @@ namespace PokerEngine.Models
         {
             get { return this.hasFolded; }
             internal set { this.hasFolded = value; }
+        }
+
+        public bool IsAllIn
+        {
+            get { return this.isAllIn; }
+            internal set { this.isAllIn = value; }
         }
 
         internal IDecisionHandler DecisionTaker
