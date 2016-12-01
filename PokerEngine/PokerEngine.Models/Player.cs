@@ -12,9 +12,9 @@ namespace PokerEngine.Models
         private Hand hand;
         private bool hasFolded;
 
-        private IDecisionTaker decisionTaker;
+        private IDecisionHandler decisionTaker;
 
-        public Player(string name, decimal money, IDecisionTaker decisionTaker)
+        public Player(string name, decimal money, IDecisionHandler decisionTaker)
         {
             this.Name = name;
             this.Money = money;
@@ -55,7 +55,7 @@ namespace PokerEngine.Models
             internal set { this.hasFolded = value; }
         }
 
-        internal IDecisionTaker DecisionTaker
+        internal IDecisionHandler DecisionTaker
         {
             get { return this.decisionTaker; }
             private set { this.decisionTaker = value; }

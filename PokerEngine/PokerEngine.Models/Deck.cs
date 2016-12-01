@@ -6,7 +6,7 @@ using PokerEngine.Models.Enumerations;
 
 namespace PokerEngine.Models
 {
-    public class Deck
+    internal class Deck
     {
         private IList<Card> cards;
         private Random randomGenerator;
@@ -79,7 +79,7 @@ namespace PokerEngine.Models
             this.Shuffle();
         }
 
-        public void Shuffle()
+        internal void Shuffle()
         {
             Card temp;
             int cardIndex;
@@ -96,13 +96,25 @@ namespace PokerEngine.Models
             this.currentCardIndex = 0;
         }
 
-        public Card DealCard()
+        internal Card DealCard()
         {
             var card = this.cards[currentCardIndex];
 
             currentCardIndex++;
 
             return card;
+        }
+
+        internal List<Card> DealMultipleCards(int count)
+        {
+            var cards = new List<Card>();
+
+            for (int i = 0; i < count; i++)
+            {
+                cards.Add(this.DealCard());
+            }
+
+            return cards;
         }
     }
 }

@@ -4,7 +4,7 @@ using PokerEngine.Models.Helpers;
 
 namespace PokerEngine.Models.GameContexts
 {
-    internal class StartGameContextInformation
+    public class StartGameContextInformation
     {
         IReadOnlyCollection<PlayerInformation> players;
         PlayerInformation dealerPosition;

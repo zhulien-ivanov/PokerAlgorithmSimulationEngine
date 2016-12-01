@@ -2,7 +2,7 @@
 
 namespace PokerEngine.Models.GameContexts
 {
-    internal class StartGameContext
+    public class StartGameContext
     {
         private StartGameContextInformation drawInformation;
         private IReadOnlyCollection<Card> myCards;

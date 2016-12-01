@@ -36,7 +36,7 @@ namespace PokerEngine.Models
         private DrawContext drawContext;
         private StartGameContextInformation startGameContext;
 
-        public Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck)
+        internal Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck)
         {
             this.Players = players;
 
@@ -216,31 +216,47 @@ namespace PokerEngine.Models
             this.AdvanceToPreFlopStage();
             var bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, true);
 
-            this.AdvanceToFlopStage();
-            bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, false);
-
-            this.AdvanceToTurnStage();
-            bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, false);
-
-            this.AdvanceToRiverStage();
-            bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, false);
-
-            this.AdvanceToShowdownStage();
+            this.HandleBettingOutcome(bettingOutcome);
         }
 
         private void HandleBettingOutcome(BettingOutcome bettingOutcome)
         {
-            if (bettingOutcome == BettingOutcome.WinThroughFold)
+            if (bettingOutcome == BettingOutcome.ContinueBetting)
             {
-
+                this.AdvanceToNextStage();
+                this.HandleBettingOutcome(this.AdvanceToBetting(this.firstToBetIndex, false));
+            }
+            else if (bettingOutcome == BettingOutcome.WinThroughFold)
+            {
+                this.AdvanceToShowdownStage();
             }
             else if (bettingOutcome == BettingOutcome.AllInShowdown)
             {
-
+                while (this.GameStage != GameStage.Showdown)
+                {
+                    this.AdvanceToNextStage();
+                }                
             }
-            else
-            {
+        }
 
+        private void AdvanceToNextStage()
+        {
+            switch (this.GameStage)
+            {
+                case GameStage.PreFlop:
+                    this.AdvanceToFlopStage();
+                    break;
+                case GameStage.Flop:
+                    this.AdvanceToTurnStage();
+                    break;
+                case GameStage.Turn:
+                    this.AdvanceToRiverStage();
+                    break;
+                case GameStage.River:
+                    this.AdvanceToShowdownStage();
+                    break;
+                default:
+                    return;
             }
         }
 
@@ -260,21 +276,21 @@ namespace PokerEngine.Models
         {
             this.GameStage = GameStage.Flop;
 
-            //deal table cards
+            this.TableCards.AddRange(this.deck.DealMultipleCards(3));
         }
 
         private void AdvanceToTurnStage()
         {
             this.GameStage = GameStage.Turn;
 
-            //deal table card
+            this.TableCards.Add(this.deck.DealCard());
         }
 
         private void AdvanceToRiverStage()
         {
             this.GameStage = GameStage.River;
 
-            //deal table card
+            this.TableCards.Add(this.deck.DealCard());
         }
 
         private void AdvanceToShowdownStage()

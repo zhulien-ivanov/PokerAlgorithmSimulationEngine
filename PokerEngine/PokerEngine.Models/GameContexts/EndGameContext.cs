@@ -4,7 +4,7 @@ using PokerEngine.Models.Helpers;
 
 namespace PokerEngine.Models.GameContexts
 {
-    internal class EndGameContext
+    public class EndGameContext
     {
         private IReadOnlyCollection<EndGamePlayerInformation> players;
         private IReadOnlyCollection<IReadOnlyCollection<EndGamePlayerInformation>> winningPlayers;
