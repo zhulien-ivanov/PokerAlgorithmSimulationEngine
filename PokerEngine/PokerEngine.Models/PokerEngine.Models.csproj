@@ -42,11 +42,14 @@
   <ItemGroup>
     <Compile Include="Card.cs" />
     <Compile Include="Contracts\IBlindsEvaluator.cs" />
+    <Compile Include="Contracts\IDecisionTaker.cs" />
     <Compile Include="Enumerations\Action.cs" />
     <Compile Include="GameContexts\EndGameContext.cs" />
     <Compile Include="GameContexts\StartGameContextInformation.cs" />
     <Compile Include="GameContexts\StartGameContext.cs" />
     <Compile Include="GameContexts\TurnContext.cs" />
+    <Compile Include="Helpers\BettingOutcome.cs" />
+    <Compile Include="Helpers\DecisionInformation.cs" />
     <Compile Include="Helpers\EndGamePlayerInformation.cs" />
     <Compile Include="Helpers\PlayerActionInformation.cs" />
     <Compile Include="Helpers\PlayerInformation.cs" />

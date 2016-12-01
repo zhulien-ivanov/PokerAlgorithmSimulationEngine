@@ -214,10 +214,37 @@ namespace PokerEngine.Models
             this.deck.Shuffle();
 
             this.AdvanceToPreFlopStage();
-            var bettingOutcome = this.AdvanceToBetting(/* after BB index */, true);
+            var bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, true);
+
+            this.AdvanceToFlopStage();
+            bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, false);
+
+            this.AdvanceToTurnStage();
+            bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, false);
+
+            this.AdvanceToRiverStage();
+            bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, false);
+
+            this.AdvanceToShowdownStage();
         }
 
-        internal void AdvanceToPreFlopStage()
+        private void HandleBettingOutcome(BettingOutcome bettingOutcome)
+        {
+            if (bettingOutcome == BettingOutcome.WinThroughFold)
+            {
+
+            }
+            else if (bettingOutcome == BettingOutcome.AllInShowdown)
+            {
+
+            }
+            else
+            {
+
+            }
+        }
+
+        private void AdvanceToPreFlopStage()
         {
             this.GameStage = GameStage.PreFlop;
 
@@ -229,28 +256,28 @@ namespace PokerEngine.Models
             this.DealPlayerCards();
         }
 
-        internal void AdvanceToFlopStage()
+        private void AdvanceToFlopStage()
         {
             this.GameStage = GameStage.Flop;
 
             //deal table cards
         }
 
-        internal void AdvanceToTurnStage()
+        private void AdvanceToTurnStage()
         {
             this.GameStage = GameStage.Turn;
 
             //deal table card
         }
 
-        internal void AdvanceToRiverStage()
+        private void AdvanceToRiverStage()
         {
             this.GameStage = GameStage.River;
 
             //deal table card
         }
 
-        internal void AdvanceToShowdownStage()
+        private void AdvanceToShowdownStage()
         {
             this.GameStage = GameStage.Showdown;
         }
