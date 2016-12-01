@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 
+using PokerEngine.Models.Contracts;
+
 namespace PokerEngine.Models
 {
     public class Player
@@ -8,13 +10,19 @@ namespace PokerEngine.Models
         private decimal money;
         private List<Card> cards;
         private Hand hand;
+        private bool hasFolded;
 
-        public Player(string name, decimal money)
+        private IDecisionTaker decisionTaker;
+
+        public Player(string name, decimal money, IDecisionTaker decisionTaker)
         {
             this.Name = name;
             this.Money = money;
 
             this.Cards = new List<Card>();
+            this.HasFolded = false;
+
+            this.DecisionTaker = decisionTaker;
         }
 
         public string Name
@@ -39,6 +47,18 @@ namespace PokerEngine.Models
         {
             get { return this.hand; }
             internal set { this.hand = value; }
+        }
+
+        public bool HasFolded
+        {
+            get { return this.hasFolded; }
+            internal set { this.hasFolded = value; }
+        }
+
+        internal IDecisionTaker DecisionTaker
+        {
+            get { return this.decisionTaker; }
+            private set { this.decisionTaker = value; }
         }
 
         public override bool Equals(object secondPlayerObject)

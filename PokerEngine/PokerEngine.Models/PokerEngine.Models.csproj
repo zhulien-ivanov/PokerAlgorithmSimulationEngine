@@ -47,7 +47,6 @@
     <Compile Include="GameContexts\StartGameContextInformation.cs" />
     <Compile Include="GameContexts\StartGameContext.cs" />
     <Compile Include="GameContexts\TurnContext.cs" />
-    <Compile Include="Helpers\DecisionFeedback.cs" />
     <Compile Include="Helpers\EndGamePlayerInformation.cs" />
     <Compile Include="Helpers\PlayerActionInformation.cs" />
     <Compile Include="Helpers\PlayerInformation.cs" />

@@ -5,7 +5,7 @@ using PokerEngine.Models.Helpers;
 
 namespace PokerEngine.Models.GameContexts
 {
-    internal class TurnContext
+    public class TurnContext
     {
         private GameStage gameStage;
         private IReadOnlyCollection<PlayerActionInformation> playerActions;                

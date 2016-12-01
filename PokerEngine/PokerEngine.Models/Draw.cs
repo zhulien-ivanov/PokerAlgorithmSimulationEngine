@@ -21,6 +21,11 @@ namespace PokerEngine.Models
         private decimal smallBlindAmount;
         private decimal bigBlindAmount;
 
+        private int firstToBetIndex;
+
+        private int playersAllInCount;
+        private int playersFoldCount;
+
         private Dictionary<string, DrawPlayerPotInformation> playersPotInformation;
 
         private List<Pot> pots;
@@ -32,20 +37,22 @@ namespace PokerEngine.Models
         private StartGameContextInformation startGameContext;
 
         public Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck)
-        {            
+        {
             this.Players = players;
 
             this.dealerIndex = dealerIndex;
 
             this.TableCards = new List<Card>();
             this.PlayerActions = new List<PlayerAction>();
-            
+
             this.DealerPosition = Players[dealerIndex];
             this.SmallBlindPosition = Players[(dealerIndex + 1) % this.Players.Count];
             this.BigBlindPosition = Players[(dealerIndex + 2) % this.Players.Count];
 
             this.SmallBlindAmount = smallBlindAmount;
             this.BigBlindAmount = this.SmallBlindAmount * 2;
+
+            this.firstToBetIndex = (dealerIndex + 3) % this.Players.Count;
 
             this.deck = deck;
 
@@ -171,7 +178,7 @@ namespace PokerEngine.Models
             }
             else
             {
-                playerActionsList  = new List<PlayerActionInformation>();
+                playerActionsList = new List<PlayerActionInformation>();
 
                 for (int i = lastActionIndex + 1; i < this.drawContext.PlayerActions.Count; i++)
                 {
@@ -193,7 +200,10 @@ namespace PokerEngine.Models
 
         internal void StartDraw()
         {
-            this.GameStage = GameStage.PreFlop;
+            this.Players.ForEach(x => x.HasFolded = false);
+
+            this.playersAllInCount = 0;
+            this.playersFoldCount = 0;
 
             // Create main pot
             this.pots = new List<Pot>();
@@ -203,17 +213,139 @@ namespace PokerEngine.Models
             // Shuffle cards
             this.deck.Shuffle();
 
+            this.AdvanceToPreFlopStage();
+            var bettingOutcome = this.AdvanceToBetting(/* after BB index */, true);
+        }
+
+        internal void AdvanceToPreFlopStage()
+        {
+            this.GameStage = GameStage.PreFlop;
+
             // SB and BB pay
             this.PaySmallBlind();
             this.PayBigBlind();
 
             // deal player cards
-            this.DealPlayerCards();            
+            this.DealPlayerCards();
         }
 
-        internal void AdvanceToBetting()
+        internal void AdvanceToFlopStage()
         {
+            this.GameStage = GameStage.Flop;
 
+            //deal table cards
+        }
+
+        internal void AdvanceToTurnStage()
+        {
+            this.GameStage = GameStage.Turn;
+
+            //deal table card
+        }
+
+        internal void AdvanceToRiverStage()
+        {
+            this.GameStage = GameStage.River;
+
+            //deal table card
+        }
+
+        internal void AdvanceToShowdownStage()
+        {
+            this.GameStage = GameStage.Showdown;
+        }
+
+        private BettingOutcome AdvanceToBetting(int firstToBetIndex, bool blindBetting)
+        {
+            var playerIndex = firstToBetIndex;            
+            var currentMaxStake = this.currentPot.CurrentMaxStake; // Used only in blindBetting.
+
+            Player lastPosition = blindBetting ? this.BigBlindPosition : this.currentPot.CurrentMaxStakePosition;
+
+            while (this.currentPot.PotentialWinners[playerIndex] != lastPosition)
+            {
+                var currentPlayer = this.currentPot.PotentialWinners[playerIndex];
+
+                if (currentPlayer.HasFolded == false)
+                {
+                    this.ConcludePlayerDecision(currentPlayer);
+
+                    if (this.Players.Count - 1 == this.playersFoldCount)
+                    {
+                        return BettingOutcome.WinThroughFold;
+                    }
+
+                    var playersLeftInGame = this.Players.Count - this.playersFoldCount;
+
+                    if (playersLeftInGame == this.playersAllInCount || playersLeftInGame == this.playersAllInCount + 1)
+                    {
+                        return BettingOutcome.AllInShowdown;
+                    }
+                }
+
+                playerIndex = (playerIndex + 1) % this.currentPot.PotentialWinners.Count;
+
+                if (blindBetting == true)
+                {
+                    // A player has raised the stake to a higher one => migrate to normal betting finishing with the highest bidder.
+                    if (currentMaxStake != this.currentPot.CurrentMaxStake)
+                    {
+                        return this.AdvanceToBetting(playerIndex, false);
+                    }
+                }
+            }
+
+            return BettingOutcome.ContinueBetting;
+        }
+
+        private void ConcludePlayerDecision(Player player)
+        {
+            var playerContext = this.GetTurnContextForPlayer(player.Name);
+            var playerDecisionInformation = player.DecisionTaker.TakeDecision(playerContext);
+
+            var playerDecisionCounter = 0;
+            bool isValidDecision = true;
+
+            string decisionMessage = string.Empty;
+
+            while (playerDecisionCounter < 3)
+            {
+                switch (playerDecisionInformation.Decision)
+                {
+                    case Decision.Check:
+                        isValidDecision = this.PlayerCheck(player);
+                        break;
+                    case Decision.Fold:
+                        this.PlayerFold(player);
+                        isValidDecision = true;
+                        break;
+                    case Decision.Call:
+                        isValidDecision = this.PlayerCall(player);
+                        break;
+                    case Decision.Raise:
+                        isValidDecision = this.PlayerRaise(player, playerDecisionInformation.Amount, out decisionMessage);
+                        break;
+                }
+
+                if (isValidDecision == true)
+                {
+                    return;
+                }
+                else
+                {
+                    playerDecisionCounter++;
+                }
+            }
+
+            // Take default action if 3 consecutive decisions aren't valid.
+            if (this.PlayerCheck(player))
+            {
+                return;
+            }
+            else
+            {
+                this.PlayerFold(player);
+            }
         }
 
         private PlayerInformation GetPlayerInformation(Player player)
@@ -256,7 +388,7 @@ namespace PokerEngine.Models
 
         private bool InvestToPot(Player player, decimal amountToPay, out decimal amountInvested)
         {
-            bool isAllIn = false;            
+            bool isAllIn = false;
 
             if (amountToPay < player.Money)
             {
@@ -273,6 +405,8 @@ namespace PokerEngine.Models
 
                 amountInvested = player.Money;
                 isAllIn = true;
+
+                this.playersAllInCount++;
             }
 
             if (amountInvested > this.currentPot.CurrentMaxStake)
@@ -297,55 +431,94 @@ namespace PokerEngine.Models
         {
             decimal amountInvested;
 
-            var isAllIn = this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount, out amountInvested);            
+            var isAllIn = this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount, out amountInvested);
             this.FilePlayerAction(new PlayerAction(this.BigBlindPosition, Action.PayBigBlind, amountInvested, isAllIn));
         }
 
-        private void PlayerCall(Player player)
+        private bool PlayerCall(Player player)
         {
-            decimal amountInvested;
-
-            var isAllIn = this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()], out amountInvested);
-            this.FilePlayerAction(new PlayerAction(player, Action.Call, amountInvested, isAllIn));
-        }
-
-        private DecisionFeedback PlayerRaise(Player player, decimal amountToRaise)
-        {
-            var wasOperationSuccessful = true;
-            var message = string.Empty;
-            var isAllIn = false;
-
-            // CONSIDER DIFFERENCE FOR CALL + BB
-            var minimalRaiseAmount = (this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.Name]) + this.BigBlindAmount;
-                        
-            if (amountToRaise < minimalRaiseAmount && player.Money > minimalRaiseAmount)
-            {
-                wasOperationSuccessful = false;
-                message = string.Format("Invalid amount for raise. You must raise with at least {0}.", minimalRaiseAmount);
-            }
-            else
+            if (this.currentPot.CurrentPotAmount[player.Name] < this.currentPot.CurrentMaxStake)
             {
                 decimal amountInvested;
 
-                isAllIn = this.InvestToPot(player, amountToRaise, out amountInvested);
-                this.FilePlayerAction(new PlayerAction(player, Action.Raise, amountInvested, isAllIn));
+                var isAllIn = this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.ToString()], out amountInvested);
+                this.FilePlayerAction(new PlayerAction(player, Action.Call, amountInvested, isAllIn));
+
+                return true;
             }
-
-            var decisionFeedback = new DecisionFeedback(wasOperationSuccessful, isAllIn, message);
-
-            return decisionFeedback;
+            else
+            {
+                return false;
+            }
         }
 
-        private void PlayerCheck(Player player)
+        private bool PlayerRaise(Player player, decimal amountToRaise, out string message)
         {
-            this.FilePlayerAction(new PlayerAction(player, Action.Check, 0, false));
+            message = string.Empty;
+
+            var potStakeDifference = this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player.Name];
+            var minimalRaiseAmount = potStakeDifference + this.BigBlindAmount;
+
+            if (player.Money <= potStakeDifference)
+            {
+                return false;
+            }
+
+            if (amountToRaise > player.Money)
+            {
+                message = string.Format("Invalid amount for raise. You are trying to raise {0} but you have only {1}.", amountToRaise, player.Money);
+                return false;
+            }
+
+            if (amountToRaise < minimalRaiseAmount && player.Money > minimalRaiseAmount)
+            {
+                message = string.Format("Invalid amount for raise. You must raise with at least {0}.", minimalRaiseAmount);
+                return false;
+            }
+
+            decimal amountInvested;
+
+            var isAllIn = this.InvestToPot(player, amountToRaise, out amountInvested);
+            this.FilePlayerAction(new PlayerAction(player, Action.Raise, amountInvested, isAllIn));
+
+            return true;
+        }
+
+        private bool PlayerCheck(Player player)
+        {
+            if (this.currentPot.CurrentPotAmount[player.Name] == this.currentPot.CurrentMaxStake)
+            {
+                this.FilePlayerAction(new PlayerAction(player, Action.Check, 0, false));
+                return true;
+            }
+            else
+            {
+                return false;
+            }
         }
 
         private void PlayerFold(Player player)
         {
             this.FilePlayerAction(new PlayerAction(player, Action.Fold, 0, false));
 
-            // remove player from list
+            player.HasFolded = true;
+            this.playersFoldCount++;
+
+            if (player == this.currentPot.PotentialWinners[this.firstToBetIndex])
+            {
+                var newFirstToBetIndex = this.firstToBetIndex;
+
+                while (true)
+                {
+                    newFirstToBetIndex = (newFirstToBetIndex + 1) % this.currentPot.PotentialWinners.Count;
+
+                    if (!this.currentPot.PotentialWinners[newFirstToBetIndex].HasFolded)
+                    {
+                        this.firstToBetIndex = newFirstToBetIndex;
+                        break;
+                    }
+                }
+            }
         }
 
         private void SyncPots()

@@ -6,6 +6,7 @@ namespace PokerEngine.Models
     {
         private decimal amount;
         private decimal currentMaxStake;
+        private Player currentMaxStakePosition;
         private List<Player> potentialWinners;
         private Dictionary<string, decimal> currentPotAmount;
 
@@ -28,16 +29,22 @@ namespace PokerEngine.Models
             internal set { this.currentMaxStake = value; }
         }
 
+        public Player CurrentMaxStakePosition
+        {
+            get { return this.currentMaxStakePosition; }
+            internal set { this.currentMaxStakePosition = value; }
+        }
+
         public List<Player> PotentialWinners
         {
             get { return this.potentialWinners; }
-            private set { this.potentialWinners = value; }
+            internal set { this.potentialWinners = value; }
         }
 
         public Dictionary<string, decimal> CurrentPotAmount
         {
             get { return this.currentPotAmount; }
-            private set { this.currentPotAmount = value; }
+            internal set { this.currentPotAmount = value; }
         }
     }
 }
