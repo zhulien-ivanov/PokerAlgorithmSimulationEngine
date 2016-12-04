@@ -6,25 +6,17 @@ namespace PokerEngine.Models.GameContexts
 {
     public class EndGameContext
     {
-        private IReadOnlyCollection<EndGamePlayerInformation> players;
-        private IReadOnlyCollection<IReadOnlyCollection<EndGamePlayerInformation>> winningPlayers;
+        private IReadOnlyCollection<PotInformation> pots;
 
-        public EndGameContext(IReadOnlyCollection<EndGamePlayerInformation> players, IReadOnlyCollection<IReadOnlyCollection<EndGamePlayerInformation>> winningPlayers)
+        public EndGameContext(IReadOnlyCollection<PotInformation> pots)
         {
-            this.Players = players;
-            this.WinningPlayers = winningPlayers;
+            this.Pots = pots;
         }
 
-        public IReadOnlyCollection<EndGamePlayerInformation> Players
+        public IReadOnlyCollection<PotInformation> Pots
         {
-            get { return this.players; }
-            private set { this.players = value; }
-        }
-
-        public IReadOnlyCollection<IReadOnlyCollection<EndGamePlayerInformation>> WinningPlayers
-        {
-            get { return this.winningPlayers; }
-            private set { this.winningPlayers = value; }
+            get { return this.pots; }
+            private set { this.pots = value; }
         }
     }
 }

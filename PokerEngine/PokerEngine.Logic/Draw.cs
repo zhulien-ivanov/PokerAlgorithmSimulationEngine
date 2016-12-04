@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
+using PokerEngine.Models;
 using PokerEngine.Models.Enumerations;
 using PokerEngine.Models.GameContexts;
 using PokerEngine.Models.Helpers;
 
-namespace PokerEngine.Models
+namespace PokerEngine.Logic
 {
     public class Draw
     {
@@ -157,7 +158,7 @@ namespace PokerEngine.Models
         }
 
         // Build start game context for each player
-        internal StartGameContext GetStartGameContextForPlayer(Player player)
+        private StartGameContext GetStartGameContextForPlayer(Player player)
         {
             IReadOnlyCollection<Card> playerCards = this.Players.FirstOrDefault(x => x.Name == player.Name).Cards.AsReadOnly();
 
@@ -167,7 +168,7 @@ namespace PokerEngine.Models
         }
 
         // Build turn game context for each player
-        internal TurnContext GetTurnContextForPlayer(string playerName)
+        private TurnContext GetTurnContextForPlayer(string playerName)
         {
             List<PlayerActionInformation> playerActionsList;
             IReadOnlyCollection<PlayerActionInformation> playerActions;
@@ -197,8 +198,19 @@ namespace PokerEngine.Models
             return context;
         }
 
-        // Build end game context
-        // TO DO!!!!
+        // Build common end game context
+        private EndGameContext BuildEndGameContext()
+        {
+            PotInformation potInformation;
+
+            foreach (var pot in this.pots)
+            {                
+            }
+
+            var pots = this.pots.Select(x => new PotInformation(x.Amount, x.))
+
+            var context = new EndGameContext();
+        }
 
         internal void StartDraw()
         {
@@ -650,6 +662,8 @@ namespace PokerEngine.Models
                 newPots.Add(newPot);
 
                 this.currentPot = newPot;
+
+                this.pots.AddRange(newPots);
             }
         }
     }

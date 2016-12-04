@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
+using PokerEngine.Models;
 using PokerEngine.Models.Contracts;
-using PokerEngine.Models.Enumerations;
-using PokerEngine.Models.Helpers;
-using PokerEngine.Models.GameContexts;
 
-namespace PokerEngine.Models
+
+namespace PokerEngine.Logic
 {
     public class Table
     {
