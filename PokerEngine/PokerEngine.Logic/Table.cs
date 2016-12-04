@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 
 using PokerEngine.Models;
-using PokerEngine.Models.Contracts;
 
+using PokerEngine.Logic.Contracts;
 
 namespace PokerEngine.Logic
 {
@@ -18,8 +18,9 @@ namespace PokerEngine.Logic
         private Draw currentDraw;
 
         private IBlindsEvaluator blindsEvaluator;
+        private IPlayerHandEvaluator handEvaluator;
 
-        public Table(List<Player> players, IBlindsEvaluator blindsEvaluator)
+        public Table(List<Player> players, IBlindsEvaluator blindsEvaluator, IPlayerHandEvaluator handEvaluator)
         {
             this.randomGenerator = new Random();
             this.currentDealerIndex = this.randomGenerator.Next(0, this.Players.Count);
@@ -28,6 +29,7 @@ namespace PokerEngine.Logic
             this.Draws = new List<Draw>();
 
             this.blindsEvaluator = blindsEvaluator;
+            this.handEvaluator = handEvaluator;
             //this.CurrentDraw = new Draw(this.Players, this.currentDealerIndex, this.blindsEvaluator.GetSmallBlindAmount(this.BuildContext()));
         }
 

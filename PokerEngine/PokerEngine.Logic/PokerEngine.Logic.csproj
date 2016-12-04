@@ -40,11 +40,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\IBlindsEvaluator.cs" />
+    <Compile Include="Contracts\IPlayerHandEvaluator.cs" />
     <Compile Include="Draw.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Table.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\PokerEngine.Evaluators\PokerEngine.Evaluators.csproj">
+      <Project>{1162a1d0-44fc-4bdd-afb9-2491dbbc9f1d}</Project>
+      <Name>PokerEngine.Evaluators</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PokerEngine.Models\PokerEngine.Models.csproj">
       <Project>{99476c67-17c5-4768-b3b1-39159949265d}</Project>
       <Name>PokerEngine.Models</Name>

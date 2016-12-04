@@ -1,4 +1,6 @@
-﻿namespace PokerEngine.Models.Contracts
+﻿using PokerEngine.Evaluators.Contracts;
+
+namespace PokerEngine.Logic.Contracts
 {
     internal interface IPlayerHandEvaluator
     {

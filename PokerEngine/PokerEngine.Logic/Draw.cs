@@ -5,6 +5,7 @@ using PokerEngine.Models;
 using PokerEngine.Models.Enumerations;
 using PokerEngine.Models.GameContexts;
 using PokerEngine.Models.Helpers;
+using PokerEngine.Logic.Contracts;
 
 namespace PokerEngine.Logic
 {
@@ -34,10 +35,12 @@ namespace PokerEngine.Logic
 
         private Deck deck;
 
+        private IPlayerHandEvaluator handEvaluator;
+
         private DrawContext drawContext;
         private StartGameContextInformation startGameContext;
 
-        internal Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck)
+        internal Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck, IPlayerHandEvaluator handEvaluator)
         {
             this.Players = players;
 
@@ -58,6 +61,8 @@ namespace PokerEngine.Logic
             this.currentDrawAmount = new Dictionary<Player, decimal>();
 
             this.deck = deck;
+
+            this.handEvaluator = handEvaluator;
 
             this.drawContext = this.BuildInitialContext();
             this.startGameContext = this.BuildStartGameContext();

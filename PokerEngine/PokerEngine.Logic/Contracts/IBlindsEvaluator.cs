@@ -1,4 +1,6 @@
-﻿namespace PokerEngine.Models.Contracts
+﻿using PokerEngine.Models;
+
+namespace PokerEngine.Logic.Contracts
 {
     public interface IBlindsEvaluator
     {
