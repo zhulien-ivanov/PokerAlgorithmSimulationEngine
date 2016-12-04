@@ -40,6 +40,8 @@ namespace PokerEngine.Logic
         private DrawContext drawContext;
         private StartGameContextInformation startGameContext;
 
+        private Dictionary<Player, int> lastActionIndexSent;
+
         internal Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck, IPlayerHandEvaluator handEvaluator)
         {
             this.Players = players;
@@ -172,33 +174,48 @@ namespace PokerEngine.Logic
             return context;
         }
 
-        // Build turn game context for each player
-        private TurnContext GetTurnContextForPlayer(string playerName)
+        // Build decision game context for each player
+        private DecisionContext GetDecisionContextForPlayer(Player player)
         {
-            List<PlayerActionInformation> playerActionsList;
-            IReadOnlyCollection<PlayerActionInformation> playerActions;
+            IReadOnlyCollection<PlayerActionInformation> playerActions = this.GetPlayerLastActions(player);
 
-            var lastActionIndex = this.drawContext.PlayerActions.FindLastIndex(x => x.Player.Name == playerName);
+            DecisionContext context = new DecisionContext(playerActions, this.currentPot.Amount);
 
-            if (lastActionIndex < 0)
-            {
-                playerActions = this.drawContext.PlayerActions.AsReadOnly();
-            }
-            else
-            {
-                playerActionsList = new List<PlayerActionInformation>();
+            return context;
+        }
 
-                for (int i = lastActionIndex + 1; i < this.drawContext.PlayerActions.Count; i++)
-                {
-                    playerActionsList.Add(this.drawContext.PlayerActions[i]);
-                }
-
-                playerActions = playerActionsList.AsReadOnly();
-            }
-
+        // Build flop game context for each player
+        private FlopStageContext GetFlopStageContextForPlayer(Player player)
+        {
             IReadOnlyCollection<Card> tableCards = this.TableCards.AsReadOnly();
 
-            TurnContext context = new TurnContext(this.GameStage, playerActions, tableCards, this.currentPot.Amount);
+            IReadOnlyCollection<PlayerActionInformation> playerActions = this.GetPlayerLastActions(player);
+
+            FlopStageContext context = new FlopStageContext(tableCards, playerActions);
+
+            return context;
+        }
+
+        // Build turn game context for each player
+        private TurnStageContext GetTurnStageContextForPlayer(Player player)
+        {
+            Card tableCard = this.TableCards[this.TableCards.Count - 1];
+
+            IReadOnlyCollection<PlayerActionInformation> playerActions = this.GetPlayerLastActions(player);
+
+            TurnStageContext context = new TurnStageContext(tableCard, playerActions);
+
+            return context;
+        }
+
+        // Build river game context for each player
+        private RiverStageContext GetRiverStageContextForPlayer(Player player)
+        {
+            Card tableCard = this.TableCards[this.TableCards.Count - 1];
+
+            IReadOnlyCollection<PlayerActionInformation> playerActions = this.GetPlayerLastActions(player);
+
+            RiverStageContext context = new RiverStageContext(tableCard, playerActions);
 
             return context;
         }
@@ -226,8 +243,29 @@ namespace PokerEngine.Logic
             return context;
         }
 
+        private IReadOnlyCollection<PlayerActionInformation> GetPlayerLastActions(Player player)
+        {
+            List<PlayerActionInformation> playerActionsList = new List<PlayerActionInformation>();
+            IReadOnlyCollection<PlayerActionInformation> playerActions;
+
+            var startIndex = this.lastActionIndexSent[player] + 1;
+
+            for (int i = startIndex; i < this.drawContext.PlayerActions.Count; i++)
+            {
+                playerActionsList.Add(this.drawContext.PlayerActions[i]);
+            }
+
+            this.lastActionIndexSent[player] = this.drawContext.PlayerActions.Count - 1;
+
+            playerActions = playerActionsList.AsReadOnly();
+
+            return playerActions;
+        }
+
         internal void StartDraw()
         {
+            this.lastActionIndexSent = this.Players.ToDictionary(x => x, x => -1);
+
             this.Players.ForEach(x => x.HasFolded = false);
             this.Players.ForEach(x => x.IsAllIn = false);
 
@@ -328,6 +366,11 @@ namespace PokerEngine.Logic
             this.GameStage = GameStage.Flop;
 
             this.TableCards.AddRange(this.deck.DealMultipleCards(3));
+
+            foreach (var player in this.Players)
+            {
+                player.DecisionTaker.HandleFlopStageContext(this.GetFlopStageContextForPlayer(player));
+            }
         }
 
         private void AdvanceToTurnStage()
@@ -335,6 +378,11 @@ namespace PokerEngine.Logic
             this.GameStage = GameStage.Turn;
 
             this.TableCards.Add(this.deck.DealCard());
+
+            foreach (var player in this.Players)
+            {
+                player.DecisionTaker.HandleTurnStageContext(this.GetTurnStageContextForPlayer(player));
+            }
         }
 
         private void AdvanceToRiverStage()
@@ -342,12 +390,17 @@ namespace PokerEngine.Logic
             this.GameStage = GameStage.River;
 
             this.TableCards.Add(this.deck.DealCard());
+
+            foreach (var player in this.Players)
+            {
+                player.DecisionTaker.HandleRiverStageContext(this.GetRiverStageContextForPlayer(player));
+            }
         }
 
         private void AdvanceToShowdownStage()
         {
             this.GameStage = GameStage.Showdown;
-        
+
             var playersInGame = this.Players.Where(x => !x.HasFolded).ToList();
 
             Hand playerHand;
@@ -363,7 +416,7 @@ namespace PokerEngine.Logic
             }
 
             var endGameContext = this.BuildEndGameContext();
-            
+
             foreach (var player in this.Players)
             {
                 player.DecisionTaker.HandleEndGameContext(endGameContext);
@@ -417,7 +470,7 @@ namespace PokerEngine.Logic
 
         private void ConcludePlayerDecision(Player player)
         {
-            var playerContext = this.GetTurnContextForPlayer(player.Name);
+            var playerContext = this.GetDecisionContextForPlayer(player);
             var playerDecisionInformation = player.DecisionTaker.TakeDecision(playerContext);
 
             var playerDecisionCounter = 0;

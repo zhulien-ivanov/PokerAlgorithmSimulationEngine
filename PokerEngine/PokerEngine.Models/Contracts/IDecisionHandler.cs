@@ -5,9 +5,15 @@ namespace PokerEngine.Models.Contracts
 {
     public interface IDecisionHandler
     {
-        DecisionInformation TakeDecision(TurnContext context);
+        DecisionInformation TakeDecision(DecisionContext context);
 
         void HandleStartGameContext(StartGameContext context);
+
+        void HandleFlopStageContext(FlopStageContext context);
+
+        void HandleTurnStageContext(TurnStageContext context);
+
+        void HandleRiverStageContext(RiverStageContext context);
 
         void HandleEndGameContext(EndGameContext context);
     }

@@ -44,9 +44,12 @@
     <Compile Include="Contracts\IDecisionHandler.cs" />
     <Compile Include="Enumerations\Action.cs" />
     <Compile Include="GameContexts\EndGameContext.cs" />
+    <Compile Include="GameContexts\FlopStageContext.cs" />
+    <Compile Include="GameContexts\RiverStageContext.cs" />
     <Compile Include="GameContexts\StartGameContextInformation.cs" />
     <Compile Include="GameContexts\StartGameContext.cs" />
-    <Compile Include="GameContexts\TurnContext.cs" />
+    <Compile Include="GameContexts\DecisionContext.cs" />
+    <Compile Include="GameContexts\TurnStageContext.cs" />
     <Compile Include="Helpers\BettingOutcome.cs" />
     <Compile Include="Helpers\DecisionInformation.cs" />
     <Compile Include="Helpers\EndGamePlayerInformation.cs" />
