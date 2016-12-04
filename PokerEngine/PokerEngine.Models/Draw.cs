@@ -441,30 +441,32 @@ namespace PokerEngine.Models
             if (amountToPay < player.Money)
             {
                 player.Money -= amountToPay;
-                this.currentPot.Amount += amountToPay;
-
+                                
                 amountInvested = amountToPay;
             }
             else
             {
                 player.Money = 0;
-                this.currentPot.Amount += player.Money;
-                player.IsAllIn = true;
 
                 amountInvested = player.Money;
+
+                player.IsAllIn = true;
                 isAllIn = true;
 
                 this.currentPot.PlayerWentAllIn = true;
                 this.playersAllInCount++;
             }
 
+            this.currentPot.CurrentPotAmount[player] += amountInvested;
+            this.currentPot.Amount += amountInvested;
+
+            this.currentDrawAmount[player] += amountInvested;
+
             if (amountInvested > this.currentPot.CurrentMaxStake)
             {
                 this.currentPot.CurrentMaxStake = amountInvested;
             }
-
-            this.currentPot.CurrentPotAmount[player] += amountInvested;
-
+            
             return isAllIn;
         }
 
@@ -588,21 +590,23 @@ namespace PokerEngine.Models
                 {
                     var playersAboveMaxAllInStake = this.currentPot.CurrentPotAmount.Where(x => x.Value > allInPlayersPotAmount[0]).ToDictionary(x => x.Key, x => x.Value);
 
-                    newPot = new Pot(potAmountDifference * playersAboveAllIn.Count, playersAboveAllIn); // add pot to pots
+                    newPot = new Pot();
+                    newPots.Add(newPot);
 
                     foreach (var entry in playersAboveMaxAllInStake)
                     {
                         potAmountDifference = this.currentPot.CurrentPotAmount[entry.Key] - allInPlayersPotAmount[0];
 
-                        //remove from currentPotAmount and Amount - add to currentPotAmount and Amount to new Pot
-                    }
-                    
-                    
+                        this.currentPot.CurrentPotAmount[entry.Key] -= potAmountDifference;
+                        this.currentPot.Amount -= potAmountDifference;
 
-                    // reduce from currentPot
+                        newPot.CurrentPotAmount[entry.Key] += potAmountDifference;
+                        newPot.Amount += potAmountDifference;
+
+                        newPot.PotentialWinners = playersAboveMaxAllInStake.Where(x => !x.Key.HasFolded).Select(x => x.Key).ToList();
+                    }
                 }
                 
-
                 // Calculate difference between the first and the second pot
                 for (int i = 0; i < allInPlayersPotAmount.Count - 1; i++)
                 {
@@ -610,30 +614,19 @@ namespace PokerEngine.Models
 
                     playersFullfillingThePotAmount = this.currentPot.CurrentPotAmount.Where(x => x.Value >= allInPlayersPotAmount[i]).Select(x => x.Key).ToList();
 
-                    newPot = new Pot(potAmountDifference * playersFullfillingThePotAmount.Count, playersFullfillingThePotAmount); // add pot to pots 
+                    var aggregateAmount = potAmountDifference * playersFullfillingThePotAmount.Count;
 
-                    // reduce from currentPot      
+                    this.currentPot.Amount -= aggregateAmount;
+
+                    newPot = new Pot(aggregateAmount, playersFullfillingThePotAmount.Where(x => !x.HasFolded).ToList());
+                    newPots.Add(newPot);                    
                 }
 
-                // THE REST GOES TO MAIN POT !!!! ^^
+                // Main Pot
+                newPot = new Pot(currentPot.Amount, this.currentPot.PotentialWinners.Where(x => !x.HasFolded).ToList());
+                newPots.Add(newPot);
 
-
-
-
-
-
-                // create a pot with amount = the difference * the players who are not folded and not all in(can be on the edge, check if all in with the EXACT SUM(sum invested == pot max stake))
-
-                // add the pot to a list
-
-                // REPEAT POT CREATION
-
-                // ASSIGN THE FIRST POT AS CURRENT POT
-
-
-
-
-                // ADD THE POT AMOUNT TO THE DRAW AMOUNT FOR THE PLAYER !!!!!!!!!!!!!!!!!!!!!
+                this.currentPot = newPot;
             }
         }
     }
