@@ -578,6 +578,8 @@ namespace PokerEngine.Logic
                 this.playersAllInCount++;
             }
 
+            this.SyncPlayerInformation(player);
+
             this.currentPot.CurrentPotAmount[player] += amountInvested;
             this.currentPot.Amount += amountInvested;
 

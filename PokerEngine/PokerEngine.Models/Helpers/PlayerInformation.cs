@@ -26,7 +26,7 @@ namespace PokerEngine.Models.Helpers
         public decimal Money
         {
             get { return this.money; }
-            internal set { this.money = value; }
+            set { this.money = value; }
         }
     }
 }

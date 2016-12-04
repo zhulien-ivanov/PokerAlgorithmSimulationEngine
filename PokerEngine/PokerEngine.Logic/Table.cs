@@ -12,6 +12,8 @@ namespace PokerEngine.Logic
         private Random randomGenerator;
         private int currentDealerIndex;
 
+        private Deck deck;
+
         private List<Player> players;
         private List<Draw> draws;
 
@@ -25,12 +27,13 @@ namespace PokerEngine.Logic
             this.randomGenerator = new Random();
             this.currentDealerIndex = this.randomGenerator.Next(0, this.Players.Count);
 
+            this.deck = new Deck();
+
             this.Players = players;
             this.Draws = new List<Draw>();
 
             this.blindsEvaluator = blindsEvaluator;
             this.handEvaluator = handEvaluator;
-            //this.CurrentDraw = new Draw(this.Players, this.currentDealerIndex, this.blindsEvaluator.GetSmallBlindAmount(this.BuildContext()));
         }
 
         public List<Player> Players
@@ -65,6 +68,13 @@ namespace PokerEngine.Logic
 
             // prepare new draw
             //this.CurrentDraw = new Draw(this.CurrentDraw.Players, this.currentDealerIndex, this.blindsEvaluator.GetSmallBlindAmount(this.BuildContext()));
+        }
+
+        internal void StartGame()
+        {
+            this.CurrentDraw = new Draw(this.Players, this.currentDealerIndex, this.blindsEvaluator.GetSmallBlindAmount(), deck, this.handEvaluator);
+
+            this.CurrentDraw.StartDraw();
         }
     }
 }
