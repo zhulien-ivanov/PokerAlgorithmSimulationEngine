@@ -157,9 +157,9 @@ namespace PokerEngine.Models
         }
 
         // Build start game context for each player
-        internal StartGameContext GetStartGameContextForPlayer(string playerName)
+        internal StartGameContext GetStartGameContextForPlayer(Player player)
         {
-            IReadOnlyCollection<Card> playerCards = this.Players.FirstOrDefault(x => x.Name == playerName).Cards.AsReadOnly();
+            IReadOnlyCollection<Card> playerCards = this.Players.FirstOrDefault(x => x.Name == player.Name).Cards.AsReadOnly();
 
             var context = new StartGameContext(this.startGameContext, playerCards);
 
@@ -192,7 +192,7 @@ namespace PokerEngine.Models
 
             IReadOnlyCollection<Card> tableCards = this.TableCards.AsReadOnly();
 
-            TurnContext context = new TurnContext(this.GameStage, playerActions, tableCards, this.CurrentPot);
+            TurnContext context = new TurnContext(this.GameStage, playerActions, tableCards, this.currentPot.Amount);
 
             return context;
         }
@@ -290,6 +290,11 @@ namespace PokerEngine.Models
 
             // deal player cards
             this.DealPlayerCards();
+
+            foreach (var player in this.Players)
+            {
+                player.DecisionTaker.HandleStartGameContext(this.GetStartGameContextForPlayer(player));
+            }
         }
 
         private void AdvanceToFlopStage()
@@ -448,8 +453,7 @@ namespace PokerEngine.Models
             {
                 currentPlayerIndex = i % this.Players.Count;
 
-                this.Players[currentPlayerIndex].Cards.Add(this.deck.DealCard());
-                this.Players[currentPlayerIndex].Cards.Add(this.deck.DealCard());
+                this.Players[currentPlayerIndex].Cards.AddRange(this.deck.DealMultipleCards(2));
             }
         }
 
