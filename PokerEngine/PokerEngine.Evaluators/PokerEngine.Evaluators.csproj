@@ -40,9 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Contracts\IPlayerHandComparer.cs" />
     <Compile Include="Contracts\IHandComparer.cs" />
     <Compile Include="Contracts\IHandEvaluator.cs" />
     <Compile Include="Enumerations\HandResult.cs" />
+    <Compile Include="PlayerHandComparer.cs" />
     <Compile Include="HandComparer.cs" />
     <Compile Include="HandEvaluator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

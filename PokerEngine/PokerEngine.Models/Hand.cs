@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using PokerEngine.Models.Enumerations;
 
@@ -19,13 +18,13 @@ namespace PokerEngine.Models
         public List<Card> Cards
         {
             get { return this.cards; }
-            internal set { this.cards = value; }
+            private set { this.cards = value; }
         }
 
         public HandValue HandValue
         {
             get { return this.handValue; }
-            internal set { this.handValue = value; }
+            private set { this.handValue = value; }
         }
     }
 }

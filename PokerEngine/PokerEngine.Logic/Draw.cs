@@ -204,21 +204,21 @@ namespace PokerEngine.Logic
         }
 
         // Build common end game context
-        private EndGameContext BuildEndGameContext()
-        {
-            PotInformation potInformation;
+        //private EndGameContext BuildEndGameContext()
+        //{
+        //    PotInformation potInformation;
 
-            IReadOnlyCollection<EndGamePlayerInformation> winners;
+        //    IReadOnlyCollection<EndGamePlayerInformation> winners;
 
-            foreach (var pot in this.pots)
-            {
+        //    foreach (var pot in this.pots)
+        //    {
+        //        winners = this.handEvaluator.HandComparer.GetWinners(pot.PotentialWinners).AsReadOnly();
+        //    }
 
-            }
+        //    var pots = this.pots.Select(x => new PotInformation(x.Amount, x.))
 
-            var pots = this.pots.Select(x => new PotInformation(x.Amount, x.))
-
-            var context = new EndGameContext();
-        }
+        //    var context = new EndGameContext();
+        //}
 
         internal void StartDraw()
         {
@@ -693,6 +693,14 @@ namespace PokerEngine.Logic
 
                 this.currentPot = this.pots.Peek();
             }
+        }
+
+        private List<EndGamePlayerInformation> GetWinnersForPot(Pot pot)
+        {
+            var winners = this.handEvaluator.HandComparer.GetWinners(pot.PotentialWinners);
+            var mappedWinners = winners.Select(x => new EndGamePlayerInformation(x.Name, x.Money, new List<Card>(x.Cards).AsReadOnly(), x.Hand)).ToList();
+
+            return mappedWinners;
         }
     }
 }

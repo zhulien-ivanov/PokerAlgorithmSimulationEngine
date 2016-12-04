@@ -63,7 +63,7 @@ namespace PokerEngine.Models
             set { this.isAllIn = value; }
         }
 
-        internal IDecisionHandler DecisionTaker
+        public IDecisionHandler DecisionTaker
         {
             get { return this.decisionTaker; }
             private set { this.decisionTaker = value; }
