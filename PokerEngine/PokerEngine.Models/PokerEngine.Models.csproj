@@ -42,7 +42,6 @@
   <ItemGroup>
     <Compile Include="Card.cs" />
     <Compile Include="Contracts\IBlindsEvaluator.cs" />
-    <Compile Include="Contracts\IDecisionTaker.cs" />
     <Compile Include="Enumerations\Action.cs" />
     <Compile Include="GameContexts\EndGameContext.cs" />
     <Compile Include="GameContexts\StartGameContextInformation.cs" />
@@ -53,7 +52,6 @@
     <Compile Include="Helpers\EndGamePlayerInformation.cs" />
     <Compile Include="Helpers\PlayerActionInformation.cs" />
     <Compile Include="Helpers\PlayerInformation.cs" />
-    <Compile Include="Helpers\DrawPlayerPotInformation.cs" />
     <Compile Include="PlayerAction.cs" />
     <Compile Include="Deck.cs" />
     <Compile Include="Draw.cs" />

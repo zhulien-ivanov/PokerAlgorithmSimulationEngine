@@ -210,7 +210,7 @@ namespace PokerEngine.Models
 
             // Create main pot
             this.pots = new List<Pot>();
-            this.currentPot = new Pot(0, 0, this.Players);
+            this.currentPot = new Pot(0, this.Players);
             this.pots.Add(this.currentPot);
 
             // Shuffle cards
@@ -414,7 +414,7 @@ namespace PokerEngine.Models
         {
             this.PlayerActions.Add(playerAction);
 
-            var playerActionInformation = new PlayerActionInformation(this.GetPlayerInformation(playerAction.Player), playerAction.Action, playerAction.Amount);
+            var playerActionInformation = new PlayerActionInformation(this.GetPlayerInformation(playerAction.Player), playerAction.Action, playerAction.Amount, playerAction.IsAllIn);
 
             this.drawContext.PlayerActions.Add(playerActionInformation);
         }
@@ -574,6 +574,8 @@ namespace PokerEngine.Models
         {
             if (this.currentPot.PlayerWentAllIn)
             {
+                var newPots = new List<Pot>();
+
                 // Take all who are all in
                 // Sort the list descending by pot value
                 var allInPlayersPotAmount = this.currentPot.CurrentPotAmount.Where(x => x.Key.IsAllIn).Select(x => x.Value).Distinct().OrderByDescending(x => x).ToList();
@@ -582,6 +584,25 @@ namespace PokerEngine.Models
                 List<Player> playersFullfillingThePotAmount;
                 Pot newPot;
 
+                if (allInPlayersPotAmount[0] != this.currentPot.CurrentMaxStake)
+                {
+                    var playersAboveMaxAllInStake = this.currentPot.CurrentPotAmount.Where(x => x.Value > allInPlayersPotAmount[0]).ToDictionary(x => x.Key, x => x.Value);
+
+                    newPot = new Pot(potAmountDifference * playersAboveAllIn.Count, playersAboveAllIn); // add pot to pots
+
+                    foreach (var entry in playersAboveMaxAllInStake)
+                    {
+                        potAmountDifference = this.currentPot.CurrentPotAmount[entry.Key] - allInPlayersPotAmount[0];
+
+                        //remove from currentPotAmount and Amount - add to currentPotAmount and Amount to new Pot
+                    }
+                    
+                    
+
+                    // reduce from currentPot
+                }
+                
+
                 // Calculate difference between the first and the second pot
                 for (int i = 0; i < allInPlayersPotAmount.Count - 1; i++)
                 {
@@ -589,7 +610,9 @@ namespace PokerEngine.Models
 
                     playersFullfillingThePotAmount = this.currentPot.CurrentPotAmount.Where(x => x.Value >= allInPlayersPotAmount[i]).Select(x => x.Key).ToList();
 
-                    newPot = new Pot(potAmountDifference * playersFullfillingThePotAmount.Count, 0, playersFullfillingThePotAmount);            
+                    newPot = new Pot(potAmountDifference * playersFullfillingThePotAmount.Count, playersFullfillingThePotAmount); // add pot to pots 
+
+                    // reduce from currentPot      
                 }
 
                 // THE REST GOES TO MAIN POT !!!! ^^
