@@ -226,8 +226,16 @@ namespace PokerEngine.Models
         {
             if (bettingOutcome == BettingOutcome.ContinueBetting)
             {
-                this.AdvanceToNextStage();
-                this.HandleBettingOutcome(this.AdvanceToBetting(this.firstToBetIndex, false));
+                var hasBettingStage = this.AdvanceToNextStage();
+
+                if (hasBettingStage)
+                {
+                    this.HandleBettingOutcome(this.AdvanceToBetting(this.firstToBetIndex, false));
+                }
+                else
+                {
+                    return;
+                }                
             }
             else if (bettingOutcome == BettingOutcome.WinThroughFold)
             {
@@ -242,25 +250,34 @@ namespace PokerEngine.Models
             }
         }
 
-        private void AdvanceToNextStage()
+        private bool AdvanceToNextStage()
         {
+            var hasBettingStage = false;
+
             switch (this.GameStage)
             {
                 case GameStage.PreFlop:
                     this.AdvanceToFlopStage();
+                    hasBettingStage = true;
                     break;
                 case GameStage.Flop:
                     this.AdvanceToTurnStage();
+                    hasBettingStage = true;
                     break;
                 case GameStage.Turn:
                     this.AdvanceToRiverStage();
+                    hasBettingStage = true;
                     break;
                 case GameStage.River:
                     this.AdvanceToShowdownStage();
+                    hasBettingStage = false;
                     break;
                 default:
-                    return;
+                    hasBettingStage = false;
+                    break;
             }
+
+            return hasBettingStage;
         }
 
         private void AdvanceToPreFlopStage()
@@ -342,6 +359,8 @@ namespace PokerEngine.Models
                     }
                 }
             }
+
+            this.SyncPots();
 
             return BettingOutcome.ContinueBetting;
         }
