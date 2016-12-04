@@ -2,7 +2,7 @@
 
 namespace PokerEngine.Logic.Contracts
 {
-    internal interface IPlayerHandEvaluator
+    public interface IPlayerHandEvaluator
     {
         IPlayerHandComparer HandComparer { get; }
         IHandEvaluator HandEvaluator { get; }

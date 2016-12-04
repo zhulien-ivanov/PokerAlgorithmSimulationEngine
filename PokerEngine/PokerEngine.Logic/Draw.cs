@@ -204,21 +204,27 @@ namespace PokerEngine.Logic
         }
 
         // Build common end game context
-        //private EndGameContext BuildEndGameContext()
-        //{
-        //    PotInformation potInformation;
+        private EndGameContext BuildEndGameContext()
+        {
+            var pots = new List<PotInformation>();
 
-        //    IReadOnlyCollection<EndGamePlayerInformation> winners;
+            PotInformation potInformation;
 
-        //    foreach (var pot in this.pots)
-        //    {
-        //        winners = this.handEvaluator.HandComparer.GetWinners(pot.PotentialWinners).AsReadOnly();
-        //    }
+            IReadOnlyCollection<EndGamePlayerInformation> winners;
 
-        //    var pots = this.pots.Select(x => new PotInformation(x.Amount, x.))
+            foreach (var pot in this.pots)
+            {
+                winners = this.GetWinnersForPot(pot).AsReadOnly();
 
-        //    var context = new EndGameContext();
-        //}
+                potInformation = new PotInformation(pot.Amount, winners);
+
+                pots.Add(potInformation);
+            }
+
+            var context = new EndGameContext(pots.AsReadOnly());
+
+            return context;
+        }
 
         internal void StartDraw()
         {
@@ -356,8 +362,12 @@ namespace PokerEngine.Logic
                 currentPlayer.Hand = playerHand;
             }
 
-            // build end game context
-
+            var endGameContext = this.BuildEndGameContext();
+            
+            foreach (var player in this.Players)
+            {
+                player.DecisionTaker.HandleEndGameContext(endGameContext);
+            }
         }
 
         private BettingOutcome AdvanceToBetting(int firstToBetIndex, bool blindBetting)
@@ -371,7 +381,7 @@ namespace PokerEngine.Logic
             {
                 var currentPlayer = this.currentPot.PotentialWinners[playerIndex];
 
-                if (currentPlayer.HasFolded == false)
+                if (!currentPlayer.HasFolded)
                 {
                     this.ConcludePlayerDecision(currentPlayer);
 
