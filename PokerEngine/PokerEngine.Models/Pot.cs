@@ -2,7 +2,7 @@
 
 namespace PokerEngine.Models
 {
-    internal class Pot
+    public class Pot
     {
         private decimal amount;
         private List<Player> potentialWinners;
@@ -11,7 +11,7 @@ namespace PokerEngine.Models
         private Dictionary<Player, decimal> currentPotAmount;
         private bool playerWentAllIn;
 
-        public Pot()
+        public Pot() : this(0, new List<Player>())
         {
         }
 
@@ -29,37 +29,37 @@ namespace PokerEngine.Models
         public decimal Amount
         {
             get { return this.amount; }
-            internal set { this.amount = value; }
+            set { this.amount = value; }
         }
 
         public List<Player> PotentialWinners
         {
             get { return this.potentialWinners; }
-            internal set { this.potentialWinners = value; }
+            set { this.potentialWinners = value; }
         }
 
         public decimal CurrentMaxStake
         {
             get { return this.currentMaxStake; }
-            internal set { this.currentMaxStake = value; }
+            set { this.currentMaxStake = value; }
         }
 
         public Player CurrentMaxStakePosition
         {
             get { return this.currentMaxStakePosition; }
-            internal set { this.currentMaxStakePosition = value; }
+            set { this.currentMaxStakePosition = value; }
         }
 
         public Dictionary<Player, decimal> CurrentPotAmount
         {
             get { return this.currentPotAmount; }
-            internal set { this.currentPotAmount = value; }
+            set { this.currentPotAmount = value; }
         }
 
         public bool PlayerWentAllIn
         {
             get { return this.playerWentAllIn; }
-            internal set { this.playerWentAllIn = value; }
+            set { this.playerWentAllIn = value; }
         }
     }
 }

@@ -30,37 +30,37 @@ namespace PokerEngine.Models
         public string Name
         {
             get { return this.name; }
-            private set { this.name = value; }
+            set { this.name = value; }
         }
 
         public decimal Money
         {
             get { return this.money; }
-            internal set { this.money = value; }
+            set { this.money = value; }
         }        
 
         public List<Card> Cards
         {
             get { return this.cards; }
-            internal set { this.cards = value; }
+            set { this.cards = value; }
         }
 
         public Hand Hand
         {
             get { return this.hand; }
-            internal set { this.hand = value; }
+            set { this.hand = value; }
         }
 
         public bool HasFolded
         {
             get { return this.hasFolded; }
-            internal set { this.hasFolded = value; }
+            set { this.hasFolded = value; }
         }
 
         public bool IsAllIn
         {
             get { return this.isAllIn; }
-            internal set { this.isAllIn = value; }
+            set { this.isAllIn = value; }
         }
 
         internal IDecisionHandler DecisionTaker

@@ -30,7 +30,7 @@ namespace PokerEngine.Logic
 
         private Dictionary<Player, decimal> currentDrawAmount;
 
-        private List<Pot> pots;
+        private Queue<Pot> pots;
         private Pot currentPot;
 
         private Deck deck;
@@ -208,8 +208,11 @@ namespace PokerEngine.Logic
         {
             PotInformation potInformation;
 
+            IReadOnlyCollection<EndGamePlayerInformation> winners;
+
             foreach (var pot in this.pots)
-            {                
+            {
+
             }
 
             var pots = this.pots.Select(x => new PotInformation(x.Amount, x.))
@@ -226,9 +229,9 @@ namespace PokerEngine.Logic
             this.playersFoldCount = 0;
 
             // Create main pot
-            this.pots = new List<Pot>();
+            this.pots = new Queue<Pot>();
             this.currentPot = new Pot(0, this.Players);
-            this.pots.Add(this.currentPot);
+            this.pots.Enqueue(this.currentPot);
 
             // Shuffle cards
             this.deck.Shuffle();
@@ -252,7 +255,7 @@ namespace PokerEngine.Logic
                 else
                 {
                     return;
-                }                
+                }
             }
             else if (bettingOutcome == BettingOutcome.WinThroughFold)
             {
@@ -263,7 +266,7 @@ namespace PokerEngine.Logic
                 while (this.GameStage != GameStage.Showdown)
                 {
                     this.AdvanceToNextStage();
-                }                
+                }
             }
         }
 
@@ -338,13 +341,28 @@ namespace PokerEngine.Logic
         private void AdvanceToShowdownStage()
         {
             this.GameStage = GameStage.Showdown;
+        
+            var playersInGame = this.Players.Where(x => !x.HasFolded).ToList();
+
+            Hand playerHand;
+            Player currentPlayer;
+
+            for (int i = 0; i < playersInGame.Count; i++)
+            {
+                currentPlayer = this.Players[i];
+
+                playerHand = this.handEvaluator.HandEvaluator.EvaluateHand(currentPlayer.Cards);
+
+                currentPlayer.Hand = playerHand;
+            }
 
             // build end game context
+
         }
 
         private BettingOutcome AdvanceToBetting(int firstToBetIndex, bool blindBetting)
         {
-            var playerIndex = firstToBetIndex;            
+            var playerIndex = firstToBetIndex;
             var currentMaxStake = this.currentPot.CurrentMaxStake; // Used only in blindBetting.
 
             Player lastPosition = blindBetting ? this.BigBlindPosition : this.currentPot.CurrentMaxStakePosition;
@@ -481,7 +499,7 @@ namespace PokerEngine.Logic
             if (amountToPay < player.Money)
             {
                 player.Money -= amountToPay;
-                                
+
                 amountInvested = amountToPay;
             }
             else
@@ -506,7 +524,7 @@ namespace PokerEngine.Logic
             {
                 this.currentPot.CurrentMaxStake = amountInvested;
             }
-            
+
             return isAllIn;
         }
 
@@ -646,7 +664,7 @@ namespace PokerEngine.Logic
                         newPot.PotentialWinners = playersAboveMaxAllInStake.Where(x => !x.Key.HasFolded).Select(x => x.Key).ToList();
                     }
                 }
-                
+
                 // Calculate difference between the first and the second pot
                 for (int i = 0; i < allInPlayersPotAmount.Count - 1; i++)
                 {
@@ -659,16 +677,21 @@ namespace PokerEngine.Logic
                     this.currentPot.Amount -= aggregateAmount;
 
                     newPot = new Pot(aggregateAmount, playersFullfillingThePotAmount.Where(x => !x.HasFolded).ToList());
-                    newPots.Add(newPot);                    
+                    newPots.Add(newPot);
                 }
 
                 // Main Pot
                 newPot = new Pot(currentPot.Amount, this.currentPot.PotentialWinners.Where(x => !x.HasFolded).ToList());
                 newPots.Add(newPot);
 
-                this.currentPot = newPot;
+                this.pots.Dequeue(); // Remove the current pot.                
 
-                this.pots.AddRange(newPots);
+                for (int i = newPots.Count - 1; i >= 0; i++)
+                {
+                    this.pots.Enqueue(newPots[i]);
+                }
+
+                this.currentPot = this.pots.Peek();
             }
         }
     }

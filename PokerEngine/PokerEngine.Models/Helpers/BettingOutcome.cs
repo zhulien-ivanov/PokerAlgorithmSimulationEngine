@@ -1,6 +1,6 @@
 ﻿namespace PokerEngine.Models.Helpers
 {
-    internal enum BettingOutcome
+    public enum BettingOutcome
     {
         ContinueBetting,
         WinThroughFold,
