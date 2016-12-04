@@ -37,8 +37,8 @@ namespace PokerEngine.Logic
 
         private IPlayerHandEvaluator handEvaluator;
 
-        private DrawContext drawContext;
-        private StartGameContextInformation startGameContext;
+        private DrawContext drawContext; //?
+        private StartGameContextInformation startGameContext; //?
 
         private Dictionary<Player, int> lastActionIndexSent;
 
@@ -164,6 +164,18 @@ namespace PokerEngine.Logic
             return context;
         }
 
+        // Build all fold context for each player
+        private AllFoldContext GetAllFoldContextForEachPlayer(Player player)
+        {
+            IReadOnlyCollection<PlayerActionInformation> playerActions = this.GetPlayerLastActions(player);
+
+            var winner = this.Players.FirstOrDefault(x => !x.HasFolded);
+
+            AllFoldContext context = new AllFoldContext(this.GetPlayerInformation(winner), this.FullPotAmount, playerActions);
+
+            return context;
+        }
+
         // Build start game context for each player
         private StartGameContext GetStartGameContextForPlayer(Player player)
         {
@@ -272,6 +284,8 @@ namespace PokerEngine.Logic
             this.playersAllInCount = 0;
             this.playersFoldCount = 0;
 
+            this.FullPotAmount = 0;
+
             // Create main pot
             this.pots = new Queue<Pot>();
             this.currentPot = new Pot(0, this.Players);
@@ -303,7 +317,7 @@ namespace PokerEngine.Logic
             }
             else if (bettingOutcome == BettingOutcome.WinThroughFold)
             {
-                this.AdvanceToShowdownStage();
+                this.AdvanceToAllFoldStage();
             }
             else if (bettingOutcome == BettingOutcome.AllInShowdown)
             {
@@ -312,6 +326,14 @@ namespace PokerEngine.Logic
                     this.AdvanceToNextStage();
                 }
             }
+        }
+
+        private void AdvanceToAllFoldStage()
+        {
+            foreach (var player in this.Players)
+            {
+                player.DecisionTaker.HandleAllFoldContext(this.GetAllFoldContextForEachPlayer(player));
+            }            
         }
 
         private bool AdvanceToNextStage()

@@ -7,6 +7,8 @@ namespace PokerEngine.Models.Contracts
     {
         DecisionInformation TakeDecision(DecisionContext context);
 
+        void HandleAllFoldContext(AllFoldContext context);
+
         void HandleStartGameContext(StartGameContext context);
 
         void HandleFlopStageContext(FlopStageContext context);

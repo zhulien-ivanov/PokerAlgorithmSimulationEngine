@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{99476C67-17C5-4768-B3B1-39159949265D}</ProjectGuid>
+    <ProjectGuid>{15AB78F2-8C24-4F43-B3F3-AF0D6514692F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PokerEngine.Models</RootNamespace>
-    <AssemblyName>PokerEngine.Models</AssemblyName>
+    <RootNamespace>PokerEngine.Helpers</RootNamespace>
+    <AssemblyName>PokerEngine.Helpers</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -40,38 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Card.cs" />
-    <Compile Include="Contracts\IDecisionHandler.cs" />
-    <Compile Include="Enumerations\Action.cs" />
-    <Compile Include="GameContexts\AllFoldContext.cs" />
-    <Compile Include="GameContexts\EndGameContext.cs" />
-    <Compile Include="GameContexts\FlopStageContext.cs" />
-    <Compile Include="GameContexts\RiverStageContext.cs" />
-    <Compile Include="GameContexts\StartGameContextInformation.cs" />
-    <Compile Include="GameContexts\StartGameContext.cs" />
-    <Compile Include="GameContexts\DecisionContext.cs" />
-    <Compile Include="GameContexts\TurnStageContext.cs" />
-    <Compile Include="Helpers\BettingOutcome.cs" />
-    <Compile Include="Helpers\BlindsDrawContext.cs" />
-    <Compile Include="Helpers\BlindsInformation.cs" />
-    <Compile Include="Helpers\DecisionInformation.cs" />
-    <Compile Include="Helpers\DrawInformation.cs" />
-    <Compile Include="Helpers\EndGamePlayerInformation.cs" />
-    <Compile Include="Helpers\PlayerActionInformation.cs" />
-    <Compile Include="Helpers\PlayerInformation.cs" />
-    <Compile Include="Helpers\PotInformation.cs" />
-    <Compile Include="PlayerAction.cs" />
-    <Compile Include="Deck.cs" />
-    <Compile Include="Enumerations\CardFace.cs" />
-    <Compile Include="Enumerations\CardSuit.cs" />
-    <Compile Include="Enumerations\Decision.cs" />
-    <Compile Include="Enumerations\GameStage.cs" />
-    <Compile Include="Enumerations\HandValue.cs" />
-    <Compile Include="Hand.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="Pot.cs" />
+    <Compile Include="Contracts\ILogger.cs" />
+    <Compile Include="FileLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GameContexts\DrawContext.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
