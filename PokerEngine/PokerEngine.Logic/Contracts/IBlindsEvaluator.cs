@@ -1,9 +1,9 @@
-﻿using PokerEngine.Models;
+﻿using PokerEngine.Models.Helpers;
 
 namespace PokerEngine.Logic.Contracts
 {
     public interface IBlindsEvaluator
     {
-        decimal GetSmallBlindAmount(DrawContext context);
+        BlindsInformation GetBlindAmounts(BlindsDrawContext context);
     }
 }

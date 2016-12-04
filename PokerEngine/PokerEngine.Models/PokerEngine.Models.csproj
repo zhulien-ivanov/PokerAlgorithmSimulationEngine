@@ -51,7 +51,10 @@
     <Compile Include="GameContexts\DecisionContext.cs" />
     <Compile Include="GameContexts\TurnStageContext.cs" />
     <Compile Include="Helpers\BettingOutcome.cs" />
+    <Compile Include="Helpers\BlindsDrawContext.cs" />
+    <Compile Include="Helpers\BlindsInformation.cs" />
     <Compile Include="Helpers\DecisionInformation.cs" />
+    <Compile Include="Helpers\DrawInformation.cs" />
     <Compile Include="Helpers\EndGamePlayerInformation.cs" />
     <Compile Include="Helpers\PlayerActionInformation.cs" />
     <Compile Include="Helpers\PlayerInformation.cs" />

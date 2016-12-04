@@ -42,7 +42,7 @@ namespace PokerEngine.Logic
 
         private Dictionary<Player, int> lastActionIndexSent;
 
-        internal Draw(List<Player> players, int dealerIndex, decimal smallBlindAmount, Deck deck, IPlayerHandEvaluator handEvaluator)
+        internal Draw(List<Player> players, int dealerIndex, BlindsInformation blindsInformation, Deck deck, IPlayerHandEvaluator handEvaluator)
         {
             this.Players = players;
 
@@ -55,8 +55,8 @@ namespace PokerEngine.Logic
             this.SmallBlindPosition = Players[(dealerIndex + 1) % this.Players.Count];
             this.BigBlindPosition = Players[(dealerIndex + 2) % this.Players.Count];
 
-            this.SmallBlindAmount = smallBlindAmount;
-            this.BigBlindAmount = this.SmallBlindAmount * 2;
+            this.SmallBlindAmount = blindsInformation.SmallBlindAmount;
+            this.BigBlindAmount = blindsInformation.BigBlindAmount;
 
             this.firstToBetIndex = (dealerIndex + 3) % this.Players.Count;
 
@@ -584,6 +584,7 @@ namespace PokerEngine.Logic
             this.currentPot.Amount += amountInvested;
 
             this.currentDrawAmount[player] += amountInvested;
+            this.FullPotAmount += amountInvested;
 
             if (amountInvested > this.currentPot.CurrentMaxStake)
             {

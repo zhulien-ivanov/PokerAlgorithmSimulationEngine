@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using PokerEngine.Models;
+using PokerEngine.Models.Helpers;
 
 using PokerEngine.Logic.Contracts;
 
@@ -22,6 +24,9 @@ namespace PokerEngine.Logic
         private IBlindsEvaluator blindsEvaluator;
         private IPlayerHandEvaluator handEvaluator;
 
+        private BlindsDrawContext blindsDrawContext;
+        private List<DrawInformation> drawsInfo;
+
         public Table(List<Player> players, IBlindsEvaluator blindsEvaluator, IPlayerHandEvaluator handEvaluator)
         {
             this.randomGenerator = new Random();
@@ -34,6 +39,8 @@ namespace PokerEngine.Logic
 
             this.blindsEvaluator = blindsEvaluator;
             this.handEvaluator = handEvaluator;
+
+            this.blindsDrawContext = new BlindsDrawContext();
         }
 
         public List<Player> Players
@@ -54,27 +61,48 @@ namespace PokerEngine.Logic
             internal set { this.currentDraw = value; }
         }
 
-        private void AdvanceToNextDraw()
-        {
-            // add finished draw to the draw history
-            this.Draws.Add(this.CurrentDraw);
-
-            this.currentDealerIndex = (this.currentDealerIndex + 1) % this.Players.Count;
-
-            // remove bankrupt players + check for winner -- NO!            
-
-            // create new draw
-            // should increase blind amounts? -- calculate new blinds via the blindEvaluator
-
-            // prepare new draw
-            //this.CurrentDraw = new Draw(this.CurrentDraw.Players, this.currentDealerIndex, this.blindsEvaluator.GetSmallBlindAmount(this.BuildContext()));
-        }
-
         internal void StartGame()
         {
-            this.CurrentDraw = new Draw(this.Players, this.currentDealerIndex, this.blindsEvaluator.GetSmallBlindAmount(), deck, this.handEvaluator);
+            while (this.Players.Count > 1)
+            {
+                this.CurrentDraw = new Draw(this.Players, this.currentDealerIndex, this.blindsEvaluator.GetBlindAmounts(this.blindsDrawContext), deck, this.handEvaluator);
 
-            this.CurrentDraw.StartDraw();
+                this.CurrentDraw.StartDraw();
+
+                this.HandleDrawResults(this.CurrentDraw);
+            }
+        }
+
+        private void HandleDrawResults(Draw draw)
+        {
+            this.SaveDrawInformation(draw);
+            
+            List<Player> playersLeft = new List<Player>();
+
+            for (int i = 0; i < draw.Players.Count; i++)
+            {
+                if (draw.Players[i].Money > 0)
+                {
+                    playersLeft.Add(draw.Players[i]);
+                }
+                else
+                {
+                    // Logger - player leave the table (bankrupt)
+                }
+            }
+
+            this.Players = new List<Player>(playersLeft);
+
+            this.currentDealerIndex = (this.currentDealerIndex + 1) % this.Players.Count;
+        }
+
+        private void SaveDrawInformation(Draw draw)
+        {
+            this.Draws.Add(draw);
+
+            var drawInfo = new DrawInformation(draw.Players.Count, draw.FullPotAmount, draw.SmallBlindAmount, draw.BigBlindAmount);
+
+            this.blindsDrawContext.DrawsInfo.Add(drawInfo);
         }
     }
 }
