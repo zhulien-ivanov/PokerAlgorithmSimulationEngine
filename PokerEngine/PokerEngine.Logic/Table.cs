@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using PokerEngine.Models;
 using PokerEngine.Models.Helpers;
 
 using PokerEngine.Logic.Contracts;
+
+using PokerEngine.Helpers.Contracts;
 
 namespace PokerEngine.Logic
 {
@@ -24,21 +25,26 @@ namespace PokerEngine.Logic
         private IBlindsEvaluator blindsEvaluator;
         private IPlayerHandEvaluator handEvaluator;
 
-        private BlindsDrawContext blindsDrawContext;
-        private List<DrawInformation> drawsInfo;
+        private ILogger logger;
 
-        public Table(List<Player> players, IBlindsEvaluator blindsEvaluator, IPlayerHandEvaluator handEvaluator)
+        private BlindsDrawContext blindsDrawContext;
+
+        
+        public Table(List<Player> players, IBlindsEvaluator blindsEvaluator, IPlayerHandEvaluator handEvaluator, ILogger logger)
         {
+            this.Players = players;
+
+            this.blindsEvaluator = blindsEvaluator;
+            this.handEvaluator = handEvaluator;
+
+            this.logger = logger;
+
             this.randomGenerator = new Random();
             this.currentDealerIndex = this.randomGenerator.Next(0, this.Players.Count);
 
             this.deck = new Deck();
 
-            this.Players = players;
             this.Draws = new List<Draw>();
-
-            this.blindsEvaluator = blindsEvaluator;
-            this.handEvaluator = handEvaluator;
 
             this.blindsDrawContext = new BlindsDrawContext();
         }
@@ -61,15 +67,27 @@ namespace PokerEngine.Logic
             internal set { this.currentDraw = value; }
         }
 
-        internal void StartGame()
+        public void StartGame()
         {
+            this.LogOpenTableInformation();
+
             while (this.Players.Count > 1)
             {
-                this.CurrentDraw = new Draw(this.Players, this.currentDealerIndex, this.blindsEvaluator.GetBlindAmounts(this.blindsDrawContext), deck, this.handEvaluator);
+                this.CurrentDraw = new Draw(this.Players, this.currentDealerIndex, this.blindsEvaluator.GetBlindAmounts(this.blindsDrawContext), deck, this.handEvaluator, this.logger);
 
                 this.CurrentDraw.StartDraw();
 
                 this.HandleDrawResults(this.CurrentDraw);
+            }
+        }
+
+        private void LogOpenTableInformation()
+        {
+            this.logger.Log(String.Format("Table opens with {0} players.", this.Players.Count));
+
+            foreach (var player in this.Players)
+            {
+                this.logger.Log(String.Format("Player \"{0}\" joins the table.", player.Name));
             }
         }
 

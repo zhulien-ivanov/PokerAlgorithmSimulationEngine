@@ -51,6 +51,10 @@
       <Project>{1162a1d0-44fc-4bdd-afb9-2491dbbc9f1d}</Project>
       <Name>PokerEngine.Evaluators</Name>
     </ProjectReference>
+    <ProjectReference Include="..\PokerEngine.Helpers\PokerEngine.Helpers.csproj">
+      <Project>{15ab78f2-8c24-4f43-b3f3-af0d6514692f}</Project>
+      <Name>PokerEngine.Helpers</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PokerEngine.Models\PokerEngine.Models.csproj">
       <Project>{99476c67-17c5-4768-b3b1-39159949265d}</Project>
       <Name>PokerEngine.Models</Name>

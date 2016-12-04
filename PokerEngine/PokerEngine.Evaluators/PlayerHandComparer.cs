@@ -10,7 +10,7 @@ using System;
 
 namespace PokerEngine.Evaluators
 {
-    public class HandComparerByPlayer : IPlayerHandComparer
+    public class PlayerHandComparer : IPlayerHandComparer
     {
         public List<Player> GetWinners(List<Player> players)
         {

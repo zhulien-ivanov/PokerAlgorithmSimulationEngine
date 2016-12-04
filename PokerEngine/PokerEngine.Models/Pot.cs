@@ -24,6 +24,11 @@ namespace PokerEngine.Models
             this.playerWentAllIn = false;
 
             this.currentPotAmount = new Dictionary<Player, decimal>();
+
+            foreach (var player in this.PotentialWinners)
+            {
+                currentPotAmount[player] = 0;
+            }
         }
 
         public decimal Amount

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using PokerEngine.Models;
@@ -6,6 +7,7 @@ using PokerEngine.Models.Enumerations;
 using PokerEngine.Models.GameContexts;
 using PokerEngine.Models.Helpers;
 using PokerEngine.Logic.Contracts;
+using PokerEngine.Helpers.Contracts;
 
 namespace PokerEngine.Logic
 {
@@ -37,12 +39,14 @@ namespace PokerEngine.Logic
 
         private IPlayerHandEvaluator handEvaluator;
 
+        private ILogger logger;
+
         private DrawContext drawContext; //?
         private StartGameContextInformation startGameContext; //?
 
         private Dictionary<Player, int> lastActionIndexSent;
 
-        internal Draw(List<Player> players, int dealerIndex, BlindsInformation blindsInformation, Deck deck, IPlayerHandEvaluator handEvaluator)
+        internal Draw(List<Player> players, int dealerIndex, BlindsInformation blindsInformation, Deck deck, IPlayerHandEvaluator handEvaluator, ILogger logger)
         {
             this.Players = players;
 
@@ -62,9 +66,16 @@ namespace PokerEngine.Logic
 
             this.currentDrawAmount = new Dictionary<Player, decimal>();
 
+            foreach (var player in this.Players)
+            {
+                currentDrawAmount[player] = 0;
+            }
+
             this.deck = deck;
 
             this.handEvaluator = handEvaluator;
+
+            this.logger = logger;
 
             this.drawContext = this.BuildInitialContext();
             this.startGameContext = this.BuildStartGameContext();
@@ -293,6 +304,8 @@ namespace PokerEngine.Logic
 
             // Shuffle cards
             this.deck.Shuffle();
+
+            this.LogDrawStartInformation();
 
             this.AdvanceToPreFlopStage();
             var bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, true);
@@ -621,16 +634,34 @@ namespace PokerEngine.Logic
             decimal amountInvested;
 
             var isAllIn = this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount, out amountInvested);
-            this.FilePlayerAction(new PlayerAction(this.SmallBlindPosition, Action.PaySmallBlind, amountInvested, isAllIn));
-        }
+            this.FilePlayerAction(new PlayerAction(this.SmallBlindPosition, Models.Enumerations.Action.PaySmallBlind, amountInvested, isAllIn));
+
+            if (isAllIn)
+            {
+                this.logger.Log(String.Format("Player \"{0}\" cannot afford the small blind amount of {1} and goes all-in with {2}.", this.SmallBlindPosition, this.SmallBlindAmount, amountInvested));
+            }
+            else
+            {
+                this.logger.Log(String.Format("Player \"{0}\" pays the small blind amount of {1}.", this.SmallBlindPosition, this.SmallBlindAmount));
+            }
+        } //DONE
 
         private void PayBigBlind()
         {
             decimal amountInvested;
 
             var isAllIn = this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount, out amountInvested);
-            this.FilePlayerAction(new PlayerAction(this.BigBlindPosition, Action.PayBigBlind, amountInvested, isAllIn));
-        }
+            this.FilePlayerAction(new PlayerAction(this.BigBlindPosition, Models.Enumerations.Action.PayBigBlind, amountInvested, isAllIn));
+
+            if (isAllIn)
+            {
+                this.logger.Log(String.Format("Player \"{0}\" cannot afford the big blind amount of {1} and goes all-in with {2}.", this.BigBlindPosition, this.BigBlindAmount, amountInvested));
+            }
+            else
+            {
+                this.logger.Log(String.Format("Player \"{0}\" pays the small blind amount of {1}.", this.BigBlindPosition, this.BigBlindAmount));
+            }
+        } //DONE
 
         private bool PlayerCall(Player player)
         {
@@ -638,16 +669,29 @@ namespace PokerEngine.Logic
             {
                 decimal amountInvested;
 
-                var isAllIn = this.InvestToPot(player, this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player], out amountInvested);
-                this.FilePlayerAction(new PlayerAction(player, Action.Call, amountInvested, isAllIn));
+                var callAmount = this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player];
+
+                var isAllIn = this.InvestToPot(player, callAmount, out amountInvested);
+                this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Call, amountInvested, isAllIn));
+
+                if (isAllIn)
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" cannot afford the call amount of {1} and goes all-in with {2}.", player, callAmount, amountInvested));
+                }
+                else
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" calls with the amount of {1}.", player, amountInvested));
+                }
 
                 return true;
             }
             else
             {
+                this.logger.Log(String.Format("Player \"{0}\" tries to call but this is not a valid action.", player));
+
                 return false;
             }
-        }
+        } //DONE
 
         private bool PlayerRaise(Player player, decimal amountToRaise, out string message)
         {
@@ -676,27 +720,34 @@ namespace PokerEngine.Logic
             decimal amountInvested;
 
             var isAllIn = this.InvestToPot(player, amountToRaise, out amountInvested);
-            this.FilePlayerAction(new PlayerAction(player, Action.Raise, amountInvested, isAllIn));
+            this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Raise, amountInvested, isAllIn));
 
             return true;
-        }
+        } // ADD LOGGER
 
         private bool PlayerCheck(Player player)
         {
             if (this.currentPot.CurrentPotAmount[player] == this.currentPot.CurrentMaxStake)
             {
-                this.FilePlayerAction(new PlayerAction(player, Action.Check, 0, false));
+                this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Check, 0, false));
+                
+                this.logger.Log(String.Format("Player \"{0}\" checks.", player));
+
                 return true;
             }
             else
             {
+                this.logger.Log(String.Format("Player \"{0}\" tries to check but this is not a valid action.", player));
+
                 return false;
             }
-        }
+        } //DONE
 
         private void PlayerFold(Player player)
         {
-            this.FilePlayerAction(new PlayerAction(player, Action.Fold, 0, false));
+            this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Fold, 0, false));
+
+            this.logger.Log(String.Format("Player \"{0}\" folds.", player));
 
             player.HasFolded = true;
             this.playersFoldCount++;
@@ -716,7 +767,7 @@ namespace PokerEngine.Logic
                     }
                 }
             }
-        }
+        } //DONE
 
         private void SyncPots()
         {
@@ -789,6 +840,28 @@ namespace PokerEngine.Logic
             var mappedWinners = winners.Select(x => new EndGamePlayerInformation(x.Name, x.Money, new List<Card>(x.Cards).AsReadOnly(), x.Hand)).ToList();
 
             return mappedWinners;
+        }
+
+        private void LogDrawStartInformation()
+        {
+            this.logger.Log(String.Format("Draw opens with {0} players.", this.Players.Count));
+
+            foreach (var player in this.Players)
+            {
+                this.logger.Log(String.Format("Player \"{0}\" joins the draw.", player.Name));
+            }
+
+            this.logger.Log(String.Format("Small blind amount: {0}.", this.SmallBlindAmount));
+            this.logger.Log(String.Format("Small big amount: {0}.", this.BigBlindAmount));
+
+            this.logger.Log(String.Format("{0} is the current dealer.", this.DealerPosition.Name));
+            this.logger.Log(String.Format("{0} is the current small blind.", this.SmallBlindPosition));
+            this.logger.Log(String.Format("{0} is the current big blind.", this.BigBlindPosition));
+        }
+
+        private void LogPreFlopStageInformation()
+        {
+
         }
     }
 }

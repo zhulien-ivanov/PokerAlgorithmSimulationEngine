@@ -43,6 +43,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AggressivePlayer.cs" />
+    <Compile Include="BlindEvaluator.cs" />
+    <Compile Include="PassivePlayer.cs" />
+    <Compile Include="PlayerHandEvaluator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -53,6 +57,14 @@
     <ProjectReference Include="..\PokerEngine.Evaluators\PokerEngine.Evaluators.csproj">
       <Project>{1162a1d0-44fc-4bdd-afb9-2491dbbc9f1d}</Project>
       <Name>PokerEngine.Evaluators</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PokerEngine.Helpers\PokerEngine.Helpers.csproj">
+      <Project>{15ab78f2-8c24-4f43-b3f3-af0d6514692f}</Project>
+      <Name>PokerEngine.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PokerEngine.Logic\PokerEngine.Logic.csproj">
+      <Project>{3961cd4d-f7c8-4766-a6f5-602bb56dea05}</Project>
+      <Name>PokerEngine.Logic</Name>
     </ProjectReference>
     <ProjectReference Include="..\PokerEngine.Models\PokerEngine.Models.csproj">
       <Project>{99476c67-17c5-4768-b3b1-39159949265d}</Project>

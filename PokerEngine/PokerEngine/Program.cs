@@ -1,23 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-
-using PokerEngine.Evaluators;
+﻿using PokerEngine.Evaluators;
+using PokerEngine.Helpers;
+using PokerEngine.Logic;
 using PokerEngine.Models;
-using PokerEngine.Models.Enumerations;
+using System.Collections.Generic;
 
 namespace PokerEngine
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main()
         {
-            var deck = new Deck();
+            var firstPlayer = new Player("Ivan", 1000, new PassivePlayer());
+            var secondPlayer = new Player("Damyan", 1000, new AggressivePlayer());
 
-            Console.WriteLine();
+            var players = new List<Player>();
 
-            deck.Shuffle();
+            players.Add(firstPlayer);
+            players.Add(secondPlayer);
 
-            Console.WriteLine();
+            var table = new Table(players, new BlindEvaluator(), new PlayerHandEvaluator(), new FileLogger());
+
+            table.StartGame();
         }
     }
 }

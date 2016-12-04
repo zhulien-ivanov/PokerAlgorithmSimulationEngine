@@ -16,7 +16,7 @@ namespace PokerEngine.Helpers
 
         public void Log(string message)
         {
-            using (var sw = new StreamWriter(this.path))
+            using (var sw = new StreamWriter(this.path, true))
             {
                 sw.WriteLine(message);
             }
