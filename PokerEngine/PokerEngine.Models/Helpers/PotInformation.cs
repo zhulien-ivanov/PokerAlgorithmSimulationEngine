@@ -5,9 +5,9 @@ namespace PokerEngine.Models.Helpers
     public class PotInformation
     {
         private decimal amount;
-        private IReadOnlyCollection<EndGamePlayerInformation> winners;
+        private IReadOnlyCollection<FullPlayerInformation> winners;
 
-        public PotInformation(decimal amount, IReadOnlyCollection<EndGamePlayerInformation> winners)
+        public PotInformation(decimal amount, IReadOnlyCollection<FullPlayerInformation> winners)
         {
             this.Amount = amount;
             this.Winners = winners;
@@ -19,7 +19,7 @@ namespace PokerEngine.Models.Helpers
             private set { this.amount = value; }
         }
 
-        public IReadOnlyCollection<EndGamePlayerInformation> Winners
+        public IReadOnlyCollection<FullPlayerInformation> Winners
         {
             get { return this.winners; }
             private set { this.winners = value; }

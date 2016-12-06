@@ -147,6 +147,7 @@ namespace PokerEngine.Logic
             DrawContext drawContext;
 
             var contextPlayers = this.Players.Select(x => new PlayerInformation(x.Name, x.Money)).ToList();
+
             PlayerInformation dealerPosition = contextPlayers.FirstOrDefault(x => x.Name == this.DealerPosition.Name);
             PlayerInformation smallBlindPosition = contextPlayers.FirstOrDefault(x => x.Name == this.SmallBlindPosition.Name);
             PlayerInformation bigBlindPosition = contextPlayers.FirstOrDefault(x => x.Name == this.BigBlindPosition.Name);
@@ -161,7 +162,7 @@ namespace PokerEngine.Logic
         {
             StartGameContextInformation context;
 
-            IReadOnlyCollection<PlayerInformation> players = this.drawContext.Players.AsReadOnly();
+            IReadOnlyCollection<PlayerInformation> players = this.drawContext.PlayersInformation.AsReadOnly();
 
             PlayerInformation dealerPosition = this.drawContext.DealerPosition;
             PlayerInformation smallBlindPosition = this.drawContext.SmallBlindPosition;
@@ -250,7 +251,7 @@ namespace PokerEngine.Logic
 
             PotInformation potInformation;
 
-            IReadOnlyCollection<EndGamePlayerInformation> winners;
+            IReadOnlyCollection<FullPlayerInformation> winners;
 
             foreach (var pot in this.pots)
             {
@@ -345,7 +346,7 @@ namespace PokerEngine.Logic
         {
             foreach (var player in this.Players)
             {
-                player.DecisionTaker.HandleAllFoldContext(this.GetAllFoldContextForEachPlayer(player));
+                player.DecisionTaker.HandleAllFoldContext(this.GetAllFoldContextForEachPlayer(player), this.GetFullPlayerInformation(player));
             }            
         }
 
@@ -392,7 +393,7 @@ namespace PokerEngine.Logic
 
             foreach (var player in this.Players)
             {
-                player.DecisionTaker.HandleStartGameContext(this.GetStartGameContextForPlayer(player));
+                player.DecisionTaker.HandleStartGameContext(this.GetStartGameContextForPlayer(player), this.GetPlayerInformation(player));
             }
         }
 
@@ -404,7 +405,7 @@ namespace PokerEngine.Logic
 
             foreach (var player in this.Players)
             {
-                player.DecisionTaker.HandleFlopStageContext(this.GetFlopStageContextForPlayer(player));
+                player.DecisionTaker.HandleFlopStageContext(this.GetFlopStageContextForPlayer(player), this.GetFullPlayerInformation(player));
             }
         }
 
@@ -416,7 +417,7 @@ namespace PokerEngine.Logic
 
             foreach (var player in this.Players)
             {
-                player.DecisionTaker.HandleTurnStageContext(this.GetTurnStageContextForPlayer(player));
+                player.DecisionTaker.HandleTurnStageContext(this.GetTurnStageContextForPlayer(player), this.GetFullPlayerInformation(player));
             }
         }
 
@@ -428,7 +429,7 @@ namespace PokerEngine.Logic
 
             foreach (var player in this.Players)
             {
-                player.DecisionTaker.HandleRiverStageContext(this.GetRiverStageContextForPlayer(player));
+                player.DecisionTaker.HandleRiverStageContext(this.GetRiverStageContextForPlayer(player), this.GetFullPlayerInformation(player));
             }
         }
 
@@ -454,7 +455,7 @@ namespace PokerEngine.Logic
 
             foreach (var player in this.Players)
             {
-                player.DecisionTaker.HandleEndGameContext(endGameContext);
+                player.DecisionTaker.HandleEndGameContext(endGameContext, this.GetFullPlayerInformation(player));
             }
         }
 
@@ -471,7 +472,7 @@ namespace PokerEngine.Logic
 
                 if (!currentPlayer.HasFolded)
                 {
-                    this.ConcludePlayerDecision(currentPlayer);
+                    this.ConcludePlayerDecision(currentPlayer, blindBetting);
 
                     if (this.Players.Count - 1 == this.playersFoldCount)
                     {
@@ -503,10 +504,19 @@ namespace PokerEngine.Logic
             return BettingOutcome.ContinueBetting;
         }
 
-        private void ConcludePlayerDecision(Player player)
+        private void ConcludePlayerDecision(Player player, bool blindBetting)
         {
             var playerContext = this.GetDecisionContextForPlayer(player);
-            var playerDecisionInformation = player.DecisionTaker.TakeDecision(playerContext);
+            DecisionInformation playerDecisionInformation;
+
+            if (blindBetting)
+            {
+                playerDecisionInformation = player.DecisionTaker.TakeDecision(playerContext, this.GetPlayerInformation(player));
+            }
+            else
+            {
+                playerDecisionInformation = player.DecisionTaker.TakeDecision(playerContext, this.GetFullPlayerInformation(player));
+            }                        
 
             var playerDecisionCounter = 0;
             bool isValidDecision = true;
@@ -555,14 +565,21 @@ namespace PokerEngine.Logic
 
         private PlayerInformation GetPlayerInformation(Player player)
         {
-            var playerInfo = this.drawContext.Players.FirstOrDefault(x => x.Name == player.Name);
+            var playerInfo = this.drawContext.PlayersInformation.FirstOrDefault(x => x.Name == player.Name);
 
             return playerInfo;
         }
 
+        private FullPlayerInformation GetFullPlayerInformation(Player player)
+        {
+            var fullPlayerInfo = new FullPlayerInformation(player.Name, player.Money, player.Cards.AsReadOnly(), player.Hand);
+
+            return fullPlayerInfo;
+        }
+
         private void SyncPlayerInformation(Player player)
         {
-            var playerToSync = this.drawContext.Players.FirstOrDefault(x => x.Name == player.Name);
+            var playerToSync = this.drawContext.PlayersInformation.FirstOrDefault(x => x.Name == player.Name);
 
             playerToSync.Money = player.Money;
         }
@@ -834,10 +851,10 @@ namespace PokerEngine.Logic
             }
         }
 
-        private List<EndGamePlayerInformation> GetWinnersForPot(Pot pot)
+        private List<FullPlayerInformation> GetWinnersForPot(Pot pot)
         {
             var winners = this.handEvaluator.HandComparer.GetWinners(pot.PotentialWinners);
-            var mappedWinners = winners.Select(x => new EndGamePlayerInformation(x.Name, x.Money, new List<Card>(x.Cards).AsReadOnly(), x.Hand)).ToList();
+            var mappedWinners = winners.Select(x => new FullPlayerInformation(x.Name, x.Money, new List<Card>(x.Cards).AsReadOnly(), x.Hand)).ToList();
 
             return mappedWinners;
         }

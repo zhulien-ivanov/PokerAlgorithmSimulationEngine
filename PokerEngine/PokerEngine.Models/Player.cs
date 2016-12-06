@@ -13,9 +13,9 @@ namespace PokerEngine.Models
         private bool hasFolded;
         private bool isAllIn;
 
-        private IDecisionHandler decisionTaker;
+        private IStrategy decisionTaker;
 
-        public Player(string name, decimal money, IDecisionHandler decisionTaker)
+        public Player(string name, decimal money, IStrategy decisionTaker)
         {
             this.Name = name;
             this.Money = money;
@@ -63,7 +63,7 @@ namespace PokerEngine.Models
             set { this.isAllIn = value; }
         }
 
-        public IDecisionHandler DecisionTaker
+        public IStrategy DecisionTaker
         {
             get { return this.decisionTaker; }
             private set { this.decisionTaker = value; }

@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
 
 using PokerEngine.Models.Helpers;
 
@@ -8,16 +6,16 @@ namespace PokerEngine.Models
 {
     public class DrawContext
     {
-        private List<PlayerInformation> players;
+        private List<PlayerInformation> playersInformation;        
         private PlayerInformation dealerPosition;
         private PlayerInformation smallBlindPosition;
         private PlayerInformation bigBlindPosition;
 
         private List<PlayerActionInformation> playerActions;
 
-        public DrawContext(List<PlayerInformation> players, PlayerInformation dealerPosition, PlayerInformation smallBlindPosition, PlayerInformation bigBlindPosition)
+        public DrawContext(List<PlayerInformation> playersInformation, PlayerInformation dealerPosition, PlayerInformation smallBlindPosition, PlayerInformation bigBlindPosition)
         {
-            this.Players = players;
+            this.PlayersInformation = playersInformation;
             this.DealerPosition = dealerPosition;
             this.SmallBlindPosition = smallBlindPosition;
             this.BigBlindPosition = bigBlindPosition;
@@ -25,10 +23,10 @@ namespace PokerEngine.Models
             this.PlayerActions = new List<PlayerActionInformation>();
         }
 
-        public List<PlayerInformation> Players
+        public List<PlayerInformation> PlayersInformation
         {
-            get { return this.players; }
-            internal set { this.players = value; }
+            get { return this.playersInformation; }
+            internal set { this.playersInformation = value; }
         }
 
         public PlayerInformation DealerPosition

@@ -2,12 +2,12 @@
 
 namespace PokerEngine.Models.Helpers
 {
-    public class EndGamePlayerInformation : PlayerInformation
+    public class FullPlayerInformation : PlayerInformation
     {
         private IReadOnlyCollection<Card> cards;
         private Hand hand;
 
-        public EndGamePlayerInformation(string name, decimal money, IReadOnlyCollection<Card> cards, Hand hand) : base(name, money)
+        public FullPlayerInformation(string name, decimal money, IReadOnlyCollection<Card> cards, Hand hand) : base(name, money)
         {
             this.Cards = cards;
             this.Hand = hand;

@@ -20,7 +20,7 @@ namespace PokerEngine.Evaluators.Tests.HandComparerTests
         [TestInitialize]
         public void SetUp()
         {
-            this.handComparer = new PlayerHandComparer();
+            this.handComparer = new HandComparer();
             this.inputHands = new List<Hand>();
             this.outputHands = new List<Hand>();
             this.expectedHands = new List<Hand>();
