@@ -26,6 +26,7 @@ namespace PokerEngine.Logic
         private decimal bigBlindAmount;
 
         private int firstToBetIndex;
+        private int lastToBetIndex;
 
         private int playersAllInCount;
         private int playersFoldCount;
@@ -55,14 +56,18 @@ namespace PokerEngine.Logic
             this.TableCards = new List<Card>();
             this.PlayerActions = new List<PlayerAction>();
 
+            var smallBlindIndex = (dealerIndex + 1) % this.Players.Count;
+            var bigBlindIndex = (dealerIndex + 2) % this.Players.Count;
+
             this.DealerPosition = Players[dealerIndex];
-            this.SmallBlindPosition = Players[(dealerIndex + 1) % this.Players.Count];
-            this.BigBlindPosition = Players[(dealerIndex + 2) % this.Players.Count];
+            this.SmallBlindPosition = Players[smallBlindIndex];
+            this.BigBlindPosition = Players[bigBlindIndex];
 
             this.SmallBlindAmount = blindsInformation.SmallBlindAmount;
             this.BigBlindAmount = blindsInformation.BigBlindAmount;
 
             this.firstToBetIndex = (dealerIndex + 3) % this.Players.Count;
+            this.lastToBetIndex = bigBlindIndex;
 
             this.currentDrawAmount = new Dictionary<Player, decimal>();
 
@@ -546,10 +551,10 @@ namespace PokerEngine.Logic
                 }
             }
 
+            var lastToBetIndex = (this.firstToBetIndex - 1) % this.currentPot.PotentialWinners.Count;
 
-            // problematic on blind to normal betting migration
-            //this.currentPot.CurrentMaxStakePosition = this.currentPot.PotentialWinners[(this.firstToBetIndex - 1) % this.currentPot.PotentialWinners.Count];
-            //this.currentPot.CurrentMaxStake = 0;
+            this.currentPot.CurrentMaxStakePosition = this.currentPot.PotentialWinners[lastToBetIndex];
+            this.currentPot.CurrentMaxStake = 0;
 
             this.SyncPots();
 
