@@ -470,13 +470,20 @@ namespace PokerEngine.Logic
             Hand playerHand;
             Player currentPlayer;
 
+            var evaluateHandCards = new List<Card>(7);
+
             for (int i = 0; i < playersInGame.Count; i++)
             {
                 currentPlayer = this.Players[i];
 
-                playerHand = this.handEvaluator.HandEvaluator.EvaluateHand(currentPlayer.Cards);
+                evaluateHandCards.AddRange(this.TableCards);
+                evaluateHandCards.AddRange(currentPlayer.Cards);
+
+                playerHand = this.handEvaluator.HandEvaluator.EvaluateHand(evaluateHandCards);
 
                 currentPlayer.Hand = playerHand;
+
+                evaluateHandCards.Clear();
             }
 
             var endGameContext = this.BuildEndGameContext();
@@ -494,9 +501,14 @@ namespace PokerEngine.Logic
 
             Player lastPosition = blindBetting ? this.BigBlindPosition : this.currentPot.CurrentMaxStakePosition;
 
-            while (this.currentPot.PotentialWinners[playerIndex] != lastPosition)
+            while (true)                
             {
                 var currentPlayer = this.currentPot.PotentialWinners[playerIndex];
+
+                if (currentPlayer == lastPosition && !blindBetting)
+                {
+                    break;
+                }
 
                 if (!currentPlayer.HasFolded)
                 {
@@ -522,10 +534,22 @@ namespace PokerEngine.Logic
                     // A player has raised the stake to a higher one => migrate to normal betting finishing with the highest bidder.
                     if (currentMaxStake != this.currentPot.CurrentMaxStake)
                     {
+                        this.currentPot.CurrentMaxStakePosition = currentPlayer;
+
                         return this.AdvanceToBetting(playerIndex, false);
                     }
                 }
+
+                if (currentPlayer == lastPosition)
+                {
+                    break;
+                }
             }
+
+
+            // problematic on blind to normal betting migration
+            //this.currentPot.CurrentMaxStakePosition = this.currentPot.PotentialWinners[(this.firstToBetIndex - 1) % this.currentPot.PotentialWinners.Count];
+            //this.currentPot.CurrentMaxStake = 0;
 
             this.SyncPots();
 
@@ -666,9 +690,11 @@ namespace PokerEngine.Logic
             this.currentDrawAmount[player] += amountInvested;
             this.FullPotAmount += amountInvested;
 
-            if (amountInvested > this.currentPot.CurrentMaxStake)
+            var newStake = this.currentPot.CurrentPotAmount[player];
+
+            if (newStake > this.currentPot.CurrentMaxStake)
             {
-                this.currentPot.CurrentMaxStake = amountInvested;
+                this.currentPot.CurrentMaxStake = newStake;
             }
 
             return isAllIn;
@@ -768,13 +794,22 @@ namespace PokerEngine.Logic
             var isAllIn = this.InvestToPot(player, investAmount, out amountInvested);
             this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Raise, amountInvested, isAllIn));
 
+            var raisedAmount = amountInvested - potStakeDifference;
+
             if (isAllIn)
             {
-                this.logger.Log(String.Format("Player \"{0}\" goes all-in with the amount of {1}.", player, amountInvested));
+                this.logger.Log(String.Format("Player \"{0}\" goes all-in with the amount of {1}.", player, raisedAmount));
             }
             else
             {
-                this.logger.Log(String.Format("Player \"{0}\" raises with the amount of {1}.", player, amountInvested));
+                if (potStakeDifference == 0)
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" raises with the amount of {1}.", player, raisedAmount));
+                }
+                else
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" calls the amount of {1} and raises with the amount of {2}.", player, potStakeDifference, raisedAmount));
+                }
             }
 
             return true;
