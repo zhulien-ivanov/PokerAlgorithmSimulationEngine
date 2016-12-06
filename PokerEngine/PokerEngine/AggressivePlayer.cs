@@ -9,32 +9,32 @@ namespace PokerEngine
     {
         public void HandleAllFoldContext(AllFoldContext context, FullPlayerInformation me)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void HandleEndGameContext(EndGameContext context, FullPlayerInformation me)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void HandleFlopStageContext(FlopStageContext context, FullPlayerInformation me)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void HandleRiverStageContext(RiverStageContext context, FullPlayerInformation me)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void HandleStartGameContext(StartGameContext context, PlayerInformation me)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public void HandleTurnStageContext(TurnStageContext context, FullPlayerInformation me)
         {
-            throw new NotImplementedException();
+            return;
         }
 
         public DecisionInformation TakeDecision(DecisionContext context, FullPlayerInformation me)
