@@ -381,8 +381,10 @@ namespace PokerEngine.Logic
         }
 
         private void AdvanceToPreFlopStage()
-        {
+        {            
             this.GameStage = GameStage.PreFlop;
+
+            this.LogStageInformation();
 
             // SB and BB pay
             this.PaySmallBlind();
@@ -395,11 +397,13 @@ namespace PokerEngine.Logic
             {
                 player.DecisionTaker.HandleStartGameContext(this.GetStartGameContextForPlayer(player), this.GetPlayerInformation(player));
             }
-        }
+        } //DONE
 
         private void AdvanceToFlopStage()
         {
             this.GameStage = GameStage.Flop;
+
+            this.LogStageInformation();
 
             this.TableCards.AddRange(this.deck.DealMultipleCards(3));
 
@@ -413,6 +417,8 @@ namespace PokerEngine.Logic
         {
             this.GameStage = GameStage.Turn;
 
+            this.LogStageInformation();
+
             this.TableCards.Add(this.deck.DealCard());
 
             foreach (var player in this.Players)
@@ -425,6 +431,8 @@ namespace PokerEngine.Logic
         {
             this.GameStage = GameStage.River;
 
+            this.LogStageInformation();
+
             this.TableCards.Add(this.deck.DealCard());
 
             foreach (var player in this.Players)
@@ -436,6 +444,8 @@ namespace PokerEngine.Logic
         private void AdvanceToShowdownStage()
         {
             this.GameStage = GameStage.Showdown;
+
+            this.LogStageInformation();
 
             var playersInGame = this.Players.Where(x => !x.HasFolded).ToList();
 
@@ -552,6 +562,8 @@ namespace PokerEngine.Logic
                 }
             }
 
+            this.logger.Log(String.Format("Player {0} gives invalid decision for 3rd time.", player));
+
             // Take default action if 3 consecutive decisions aren't valid.
             if (this.PlayerCheck(player))
             {
@@ -561,7 +573,7 @@ namespace PokerEngine.Logic
             {
                 this.PlayerFold(player);
             }
-        }
+        } //DONE
 
         private PlayerInformation GetPlayerInformation(Player player)
         {
@@ -644,7 +656,7 @@ namespace PokerEngine.Logic
             }
 
             return isAllIn;
-        }
+        } // NO LOGGER
 
         private void PaySmallBlind()
         {
@@ -676,7 +688,7 @@ namespace PokerEngine.Logic
             }
             else
             {
-                this.logger.Log(String.Format("Player \"{0}\" pays the small blind amount of {1}.", this.BigBlindPosition, this.BigBlindAmount));
+                this.logger.Log(String.Format("Player \"{0}\" pays the big blind amount of {1}.", this.BigBlindPosition, this.BigBlindAmount));
             }
         } //DONE
 
@@ -879,6 +891,35 @@ namespace PokerEngine.Logic
         private void LogPreFlopStageInformation()
         {
 
+        }
+
+        private void LogStageInformation()
+        {
+            string stage;
+
+            switch (this.GameStage)
+            {
+                case GameStage.PreFlop:
+                    stage = "Pre-Flop";
+                    break;
+                case GameStage.Flop:
+                    stage = "Flop";
+                    break;
+                case GameStage.Turn:
+                    stage = "Turn";
+                    break;
+                case GameStage.River:
+                    stage = "River";
+                    break;
+                case GameStage.Showdown:
+                    stage = "Showdown";
+                    break;
+                default:
+                    stage = null;
+                    break;
+            }
+
+            this.logger.Log(String.Format("{0} stage begins, {1} players in.", stage, this.Players.Count(x => !x.HasFolded)));
         }
     }
 }

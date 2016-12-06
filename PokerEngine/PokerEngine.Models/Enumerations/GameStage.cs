@@ -6,6 +6,6 @@
         Flop,
         Turn,
         River,
-        Showdown
+        Showdown          
     }
 }
