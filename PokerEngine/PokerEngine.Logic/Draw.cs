@@ -284,7 +284,7 @@ namespace PokerEngine.Logic
             playerActions = playerActionsList.AsReadOnly();
 
             return playerActions;
-        }
+        } // NO LOGGER
 
         internal void StartDraw()
         {
@@ -405,21 +405,33 @@ namespace PokerEngine.Logic
 
             this.LogStageInformation();
 
-            this.TableCards.AddRange(this.deck.DealMultipleCards(3));
+            var newCards = this.deck.DealMultipleCards(3);
+
+            this.TableCards.AddRange(newCards);
+
+            this.logger.Log(String.Format("New cards: {0}.", String.Join(" ", newCards)));
+
+            LogTableCards();
 
             foreach (var player in this.Players)
             {
                 player.DecisionTaker.HandleFlopStageContext(this.GetFlopStageContextForPlayer(player), this.GetFullPlayerInformation(player));
             }
-        }
+        } //DONE
 
-        private void AdvanceToTurnStage()
+        private void AdvanceToTurnStage() //DONE
         {
             this.GameStage = GameStage.Turn;
 
             this.LogStageInformation();
 
-            this.TableCards.Add(this.deck.DealCard());
+            var newCard = this.deck.DealCard();
+
+            this.TableCards.Add(newCard);
+
+            this.logger.Log(String.Format("New card: {0}.", newCard));
+
+            LogTableCards();
 
             foreach (var player in this.Players)
             {
@@ -427,13 +439,19 @@ namespace PokerEngine.Logic
             }
         }
 
-        private void AdvanceToRiverStage()
+        private void AdvanceToRiverStage() //DONE
         {
             this.GameStage = GameStage.River;
 
             this.LogStageInformation();
 
-            this.TableCards.Add(this.deck.DealCard());
+            var newCard = this.deck.DealCard();
+
+            this.TableCards.Add(newCard);
+
+            this.logger.Log(String.Format("New card: {0}.", newCard));
+
+            LogTableCards();
 
             foreach (var player in this.Players)
             {
@@ -531,8 +549,6 @@ namespace PokerEngine.Logic
             var playerDecisionCounter = 0;
             bool isValidDecision = true;
 
-            string decisionMessage = string.Empty;
-
             while (playerDecisionCounter < 3)
             {
                 switch (playerDecisionInformation.Decision)
@@ -548,7 +564,7 @@ namespace PokerEngine.Logic
                         isValidDecision = this.PlayerCall(player);
                         break;
                     case Decision.Raise:
-                        isValidDecision = this.PlayerRaise(player, playerDecisionInformation.Amount, out decisionMessage);
+                        isValidDecision = this.PlayerRaise(player, playerDecisionInformation.Amount);
                         break;
                 }
 
@@ -580,21 +596,21 @@ namespace PokerEngine.Logic
             var playerInfo = this.drawContext.PlayersInformation.FirstOrDefault(x => x.Name == player.Name);
 
             return playerInfo;
-        }
+        } // NO LOGGER
 
         private FullPlayerInformation GetFullPlayerInformation(Player player)
         {
             var fullPlayerInfo = new FullPlayerInformation(player.Name, player.Money, player.Cards.AsReadOnly(), player.Hand);
 
             return fullPlayerInfo;
-        }
+        } // NO LOGGER
 
         private void SyncPlayerInformation(Player player)
         {
             var playerToSync = this.drawContext.PlayersInformation.FirstOrDefault(x => x.Name == player.Name);
 
             playerToSync.Money = player.Money;
-        }
+        } // NO LOGGER
 
         private void FilePlayerAction(PlayerAction playerAction)
         {
@@ -603,7 +619,7 @@ namespace PokerEngine.Logic
             var playerActionInformation = new PlayerActionInformation(this.GetPlayerInformation(playerAction.Player), playerAction.Action, playerAction.Amount, playerAction.IsAllIn);
 
             this.drawContext.PlayerActions.Add(playerActionInformation);
-        }
+        } // NO LOGGER
 
         private void DealPlayerCards()
         {
@@ -617,7 +633,7 @@ namespace PokerEngine.Logic
 
                 this.Players[currentPlayerIndex].Cards.AddRange(this.deck.DealMultipleCards(2));
             }
-        }
+        } // NO LOGGER
 
         private bool InvestToPot(Player player, decimal amountToPay, out decimal amountInvested)
         {
@@ -722,37 +738,47 @@ namespace PokerEngine.Logic
             }
         } //DONE
 
-        private bool PlayerRaise(Player player, decimal amountToRaise, out string message)
+        private bool PlayerRaise(Player player, decimal amountToRaise)
         {
-            message = string.Empty;
-
             var potStakeDifference = this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player];
             var minimalRaiseAmount = potStakeDifference + this.BigBlindAmount;
+            var maximalRaiseAmount = player.Money - potStakeDifference;
+
+            var investAmount = potStakeDifference + amountToRaise;
 
             if (player.Money <= potStakeDifference)
             {
                 return false;
             }
 
-            if (amountToRaise > player.Money)
+            if (amountToRaise > maximalRaiseAmount)
             {
-                message = string.Format("Invalid amount for raise. You are trying to raise {0} but you have only {1}.", amountToRaise, player.Money);
+                this.logger.Log(String.Format("Player \"{0}\" tries to raise with {1} but he has only {2}.", player, amountToRaise, player.Money));
                 return false;
             }
 
             if (amountToRaise < minimalRaiseAmount && player.Money > minimalRaiseAmount)
             {
-                message = string.Format("Invalid amount for raise. You must raise with at least {0}.", minimalRaiseAmount);
+                this.logger.Log(String.Format("Player \"{0}\" tries to raise with {1} but this amount is less than the minimal required amount for rise of {2}.", player, amountToRaise, minimalRaiseAmount));
                 return false;
             }
 
             decimal amountInvested;
 
-            var isAllIn = this.InvestToPot(player, amountToRaise, out amountInvested);
+            var isAllIn = this.InvestToPot(player, investAmount, out amountInvested);
             this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Raise, amountInvested, isAllIn));
 
+            if (isAllIn)
+            {
+                this.logger.Log(String.Format("Player \"{0}\" goes all-in with the amount of {1}.", player, amountInvested));
+            }
+            else
+            {
+                this.logger.Log(String.Format("Player \"{0}\" raises with the amount of {1}.", player, amountInvested));
+            }
+
             return true;
-        } // ADD LOGGER
+        } //DONE
 
         private bool PlayerCheck(Player player)
         {
@@ -920,6 +946,13 @@ namespace PokerEngine.Logic
             }
 
             this.logger.Log(String.Format("{0} stage begins, {1} players in.", stage, this.Players.Count(x => !x.HasFolded)));
+        }
+
+        private void LogTableCards()
+        {
+            var messageToLog = String.Format("Current table cards: {0}.", String.Join(" ", this.TableCards));
+
+            this.logger.Log(messageToLog);
         }
     }
 }
