@@ -40,7 +40,8 @@ namespace PokerEngine.Logic
             this.logger = logger;
 
             this.randomGenerator = new Random();
-            this.currentDealerIndex = this.randomGenerator.Next(0, this.Players.Count);
+            //this.currentDealerIndex = this.randomGenerator.Next(0, this.Players.Count);
+            this.currentDealerIndex = 0;
 
             this.deck = new Deck();
 

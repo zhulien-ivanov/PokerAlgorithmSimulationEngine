@@ -18,7 +18,7 @@ namespace PokerEngine.Helpers
         {
             using (var sw = new StreamWriter(this.path, true))
             {
-                sw.WriteLine(message);
+                sw.WriteLine(String.Format("[{0}] {1}", DateTime.Now, message));
             }
         }
     }

@@ -26,7 +26,6 @@ namespace PokerEngine.Logic
         private decimal bigBlindAmount;
 
         private int firstToBetIndex;
-        private int lastToBetIndex;
 
         private int playersAllInCount;
         private int playersFoldCount;
@@ -66,8 +65,7 @@ namespace PokerEngine.Logic
             this.SmallBlindAmount = blindsInformation.SmallBlindAmount;
             this.BigBlindAmount = blindsInformation.BigBlindAmount;
 
-            this.firstToBetIndex = (dealerIndex + 3) % this.Players.Count;
-            this.lastToBetIndex = bigBlindIndex;
+            this.firstToBetIndex = smallBlindIndex;
 
             this.currentDrawAmount = new Dictionary<Player, decimal>();
 
@@ -313,8 +311,10 @@ namespace PokerEngine.Logic
 
             this.LogDrawStartInformation();
 
+            var blindFirstToBetIndex = (this.dealerIndex + 3) % this.Players.Count;
+
             this.AdvanceToPreFlopStage();
-            var bettingOutcome = this.AdvanceToBetting(this.firstToBetIndex, true);
+            var bettingOutcome = this.AdvanceToBetting(blindFirstToBetIndex, true);
 
             this.HandleBettingOutcome(bettingOutcome);
         }
@@ -394,6 +394,8 @@ namespace PokerEngine.Logic
             // SB and BB pay
             this.PaySmallBlind();
             this.PayBigBlind();
+
+            this.currentPot.CurrentMaxStakePosition = this.BigBlindPosition;
 
             // deal player cards
             this.DealPlayerCards();
@@ -502,15 +504,17 @@ namespace PokerEngine.Logic
         private BettingOutcome AdvanceToBetting(int firstToBetIndex, bool blindBetting)
         {
             var playerIndex = firstToBetIndex;
-            var currentMaxStake = this.currentPot.CurrentMaxStake; // Used only in blindBetting.
+            var currentMaxStake = this.currentPot.CurrentMaxStake;
 
-            Player lastPosition = blindBetting ? this.BigBlindPosition : this.currentPot.CurrentMaxStakePosition;
+            var stillBlindBetting = blindBetting;
+
+            bool shouldContinue = true;
 
             while (true)                
             {
                 var currentPlayer = this.currentPot.PotentialWinners[playerIndex];
 
-                if (currentPlayer == lastPosition && !blindBetting)
+                if (currentPlayer == this.currentPot.CurrentMaxStakePosition && (!stillBlindBetting && !shouldContinue))
                 {
                     break;
                 }
@@ -530,33 +534,37 @@ namespace PokerEngine.Logic
                     {
                         return BettingOutcome.AllInShowdown;
                     }
-                }
-
-                playerIndex = (playerIndex + 1) % this.currentPot.PotentialWinners.Count;
-
-                if (blindBetting == true)
+                }                
+                
+                if (currentMaxStake != this.currentPot.CurrentMaxStake)
                 {
-                    // A player has raised the stake to a higher one => migrate to normal betting finishing with the highest bidder.
-                    if (currentMaxStake != this.currentPot.CurrentMaxStake)
-                    {
-                        this.currentPot.CurrentMaxStakePosition = currentPlayer;
+                    this.currentPot.CurrentMaxStakePosition = currentPlayer;
+                    currentMaxStake = this.currentPot.CurrentMaxStake;
 
-                        return this.AdvanceToBetting(playerIndex, false);
-                    }
+                    stillBlindBetting = false;
+                    shouldContinue = false;
                 }
 
-                if (currentPlayer == lastPosition)
+                if (currentPlayer == this.currentPot.CurrentMaxStakePosition && (stillBlindBetting || shouldContinue))
                 {
                     break;
                 }
+
+                playerIndex = (playerIndex + 1) % this.currentPot.PotentialWinners.Count;
             }
 
-            var lastToBetIndex = (this.firstToBetIndex - 1) % this.currentPot.PotentialWinners.Count;
-
-            this.currentPot.CurrentMaxStakePosition = this.currentPot.PotentialWinners[lastToBetIndex];
-            this.currentPot.CurrentMaxStake = 0;
-
             this.SyncPots();
+
+            //this.currentPot.CurrentMaxStake = 0;
+
+            int previousIndex = this.firstToBetIndex - 1;
+
+            if (previousIndex < 0)
+            {
+                previousIndex = this.currentPot.PotentialWinners.Count - 1;
+            }
+
+            this.currentPot.CurrentMaxStakePosition = this.currentPot.PotentialWinners[previousIndex];
 
             return BettingOutcome.ContinueBetting;
         }
@@ -633,6 +641,13 @@ namespace PokerEngine.Logic
 
             return fullPlayerInfo;
         } // NO LOGGER
+
+        private int GetPlayerIndex(Player player)
+        {
+            var index = this.currentPot.PotentialWinners.IndexOf(player);
+
+            return index;
+        }
 
         private void SyncPlayerInformation(Player player)
         {
@@ -849,18 +864,23 @@ namespace PokerEngine.Logic
 
             if (player == this.currentPot.PotentialWinners[this.firstToBetIndex])
             {
-                var newFirstToBetIndex = this.firstToBetIndex;
-
-                while (true)
+                if (this.firstToBetIndex == this.currentPot.PotentialWinners.Count - 1)
                 {
-                    newFirstToBetIndex = (newFirstToBetIndex + 1) % this.currentPot.PotentialWinners.Count;
-
-                    if (!this.currentPot.PotentialWinners[newFirstToBetIndex].HasFolded)
-                    {
-                        this.firstToBetIndex = newFirstToBetIndex;
-                        break;
-                    }
+                    this.firstToBetIndex = 0;
                 }
+
+                //var newFirstToBetIndex = this.firstToBetIndex;
+
+                //while (true)
+                //{
+                //    newFirstToBetIndex = (newFirstToBetIndex + 1) % this.currentPot.PotentialWinners.Count;
+
+                //    if (!this.currentPot.PotentialWinners[newFirstToBetIndex].HasFolded)
+                //    {
+                //        this.firstToBetIndex = newFirstToBetIndex;
+                //        break;
+                //    }
+                //}
             }
         } //DONE
 
