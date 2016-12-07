@@ -28,7 +28,6 @@ namespace PokerEngine.Logic
         private ILogger logger;
 
         private BlindsDrawContext blindsDrawContext;
-
         
         public Table(List<Player> players, IBlindsEvaluator blindsEvaluator, IPlayerHandEvaluator handEvaluator, ILogger logger)
         {

@@ -295,6 +295,7 @@ namespace PokerEngine.Logic
 
             this.Players.ForEach(x => x.HasFolded = false);
             this.Players.ForEach(x => x.IsAllIn = false);
+            //this.Players.ForEach(x => x.Cards.Clear());
 
             this.playersAllInCount = 0;
             this.playersFoldCount = 0;
