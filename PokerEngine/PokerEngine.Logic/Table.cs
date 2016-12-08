@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using PokerEngine.Models;
 using PokerEngine.Models.Helpers;
@@ -79,6 +80,17 @@ namespace PokerEngine.Logic
 
                 this.HandleDrawResults(this.CurrentDraw);
             }
+
+            this.logger.AddSeparator();
+            this.logger.Log(String.Format("Player \"{0}\" wins the game.", this.GetTableWinner()));
+            this.logger.AddSeparator();
+        }
+
+        private Player GetTableWinner()
+        {
+            var winner = this.Draws.Last().Players.FirstOrDefault(x => x.Money > 0);
+
+            return winner;
         }
 
         private void LogOpenTableInformation()

@@ -504,7 +504,7 @@ namespace PokerEngine.Logic
 
             for (int i = 0; i < playersInGame.Count; i++)
             {
-                currentPlayer = this.Players[i];
+                currentPlayer = playersInGame[i];
 
                 evaluateHandCards.AddRange(this.TableCards);
                 evaluateHandCards.AddRange(currentPlayer.Cards);
@@ -991,6 +991,11 @@ namespace PokerEngine.Logic
                         this.currentPot.CurrentPotAmount[entry.Key] -= potAmountDifference;
                         this.currentPot.Amount -= potAmountDifference;
 
+                        if (!newPot.CurrentPotAmount.ContainsKey(entry.Key))
+                        {
+                            newPot.CurrentPotAmount[entry.Key] = 0;
+                        }
+
                         newPot.CurrentPotAmount[entry.Key] += potAmountDifference;
                         newPot.Amount += potAmountDifference;
 
@@ -1019,7 +1024,7 @@ namespace PokerEngine.Logic
 
                 this.pots.Dequeue(); // Remove the current pot.                
 
-                for (int i = newPots.Count - 1; i >= 0; i++)
+                for (int i = newPots.Count - 1; i >= 0; i--)
                 {
                     this.pots.Enqueue(newPots[i]);
                 }
@@ -1030,7 +1035,7 @@ namespace PokerEngine.Logic
 
         private List<FullPlayerInformation> GetWinnersForPot(Pot pot)
         {
-            var winners = this.handEvaluator.HandComparer.GetWinners(pot.PotentialWinners);
+            var winners = this.handEvaluator.HandComparer.GetWinners(pot.PotentialWinners.Where(x => !x.HasFolded).ToList());
             var mappedWinners = winners.Select(x => new FullPlayerInformation(x.Name, x.Money, new List<Card>(x.Cards).AsReadOnly(), x.Hand)).ToList();
 
             return mappedWinners;
