@@ -18,7 +18,7 @@ namespace PokerEngine
             players.Add(firstPlayer);
             players.Add(secondPlayer);
 
-            var table = new Table(players, new BlindEvaluator(), new PlayerHandEvaluator(), new FileLogger());
+            var table = new Table(players, new BlindEvaluator(), new PlayerHandEvaluator(), new FileLogger('-', 80));
 
             table.StartGame();
         }

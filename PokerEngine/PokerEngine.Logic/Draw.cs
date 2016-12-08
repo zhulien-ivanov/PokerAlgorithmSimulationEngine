@@ -355,10 +355,10 @@ namespace PokerEngine.Logic
 
             lastStandingPlayer.Money += this.FullPotAmount;
 
-            this.logger.Log(new string(',', 80));
+            this.logger.AddSeparator();
             this.logger.Log(String.Format("Only one player left in the game: \"{0}\".", lastStandingPlayer));
             this.logger.Log(String.Format("\"{0}\" wins {1}.", lastStandingPlayer, this.FullPotAmount));
-            this.logger.Log(new string(',', 80));
+            this.logger.AddSeparator();
 
             foreach (var player in this.Players)
             {
@@ -720,10 +720,10 @@ namespace PokerEngine.Logic
                 amountInvested = amountToPay;
             }
             else
-            {
-                player.Money = 0;
-
+            {                
                 amountInvested = player.Money;
+
+                player.Money = 0;
 
                 player.IsAllIn = true;
                 isAllIn = true;
@@ -752,6 +752,8 @@ namespace PokerEngine.Logic
 
         private void PaySmallBlind()
         {
+            var playerMoney = this.SmallBlindPosition.Money;
+
             decimal amountInvested;
 
             var isAllIn = this.InvestToPot(this.SmallBlindPosition, this.SmallBlindAmount, out amountInvested);
@@ -759,7 +761,14 @@ namespace PokerEngine.Logic
 
             if (isAllIn)
             {
-                this.logger.Log(String.Format("Player \"{0}\" cannot afford the small blind amount of {1} and goes all-in with {2}.", this.SmallBlindPosition, this.SmallBlindAmount, amountInvested));
+                if (amountInvested == playerMoney)
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" goes all-in with {1}.", this.SmallBlindPosition, amountInvested));
+                }
+                else
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" cannot afford the small blind amount of {1} and goes all-in with {2}.", this.SmallBlindPosition, this.SmallBlindAmount, amountInvested));
+                }                
             }
             else
             {
@@ -769,6 +778,8 @@ namespace PokerEngine.Logic
 
         private void PayBigBlind()
         {
+            var playerMoney = this.BigBlindPosition.Money;
+
             decimal amountInvested;
 
             var isAllIn = this.InvestToPot(this.BigBlindPosition, this.BigBlindAmount, out amountInvested);
@@ -776,7 +787,14 @@ namespace PokerEngine.Logic
 
             if (isAllIn)
             {
-                this.logger.Log(String.Format("Player \"{0}\" cannot afford the big blind amount of {1} and goes all-in with {2}.", this.BigBlindPosition, this.BigBlindAmount, amountInvested));
+                if (amountInvested == playerMoney)
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" goes all-in with {1}.", this.BigBlindPosition, amountInvested));
+                }
+                else
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" cannot afford the big blind amount of {1} and goes all-in with {2}.", this.BigBlindPosition, this.BigBlindAmount, amountInvested));
+                }                
             }
             else
             {
@@ -788,6 +806,8 @@ namespace PokerEngine.Logic
         {
             if (this.currentPot.CurrentPotAmount[player] < this.currentPot.CurrentMaxStake)
             {
+                var playerMoney = player.Money;
+
                 decimal amountInvested;
 
                 var callAmount = this.currentPot.CurrentMaxStake - this.currentPot.CurrentPotAmount[player];
@@ -797,7 +817,14 @@ namespace PokerEngine.Logic
 
                 if (isAllIn)
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" cannot afford the call amount of {1} and goes all-in with {2}.", player, callAmount, amountInvested));
+                    if (amountInvested == playerMoney)
+                    {
+                        this.logger.Log(String.Format("Player \"{0}\" goes all-in with {1}.", player, amountInvested));
+                    }
+                    else
+                    {
+                        this.logger.Log(String.Format("Player \"{0}\" cannot afford the call amount of {1} and goes all-in with {2}.", player, callAmount, amountInvested));
+                    }                    
                 }
                 else
                 {
@@ -1004,11 +1031,6 @@ namespace PokerEngine.Logic
             this.logger.Log(String.Format("{0} is the current big blind.", this.BigBlindPosition));
         }
 
-        private void LogPreFlopStageInformation()
-        {
-
-        }
-
         private void LogStageInformation()
         {
             string stage;
@@ -1053,7 +1075,7 @@ namespace PokerEngine.Logic
 
             foreach (var pot in context.Pots)
             {
-                this.logger.Log(new string('-', 80));
+                this.logger.AddSeparator();
 
                 if (currentIndex > 0)
                 {
@@ -1072,7 +1094,7 @@ namespace PokerEngine.Logic
                     this.logger.Log(String.Format("Player \"{0}\" wins {1} with the hand {2}({3}).", winner.Name, pot.WinAmount, winner.Hand, winner.Hand.HandValue));
                 }
 
-                this.logger.Log(new string('-', 40));
+                this.logger.AddSeparator();
 
                 currentIndex--;
             }
