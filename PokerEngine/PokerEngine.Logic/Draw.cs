@@ -295,7 +295,8 @@ namespace PokerEngine.Logic
 
             this.Players.ForEach(x => x.HasFolded = false);
             this.Players.ForEach(x => x.IsAllIn = false);
-            //this.Players.ForEach(x => x.Cards.Clear());
+            this.Players.ForEach(x => x.Cards.Clear());
+            this.Players.ForEach(x => x.Hand = null);
 
             this.playersAllInCount = 0;
             this.playersFoldCount = 0;
@@ -348,8 +349,17 @@ namespace PokerEngine.Logic
             }
         }
 
-        private void AdvanceToAllFoldStage()
+        private void AdvanceToAllFoldStage() //DONE
         {
+            var lastStandingPlayer = this.currentPot.PotentialWinners.FirstOrDefault(x => !x.HasFolded);
+
+            lastStandingPlayer.Money += this.FullPotAmount;
+
+            this.logger.Log(new string(',', 80));
+            this.logger.Log(String.Format("Only one player left in the game: \"{0}\".", lastStandingPlayer));
+            this.logger.Log(String.Format("\"{0}\" wins {1}.", lastStandingPlayer, this.FullPotAmount));
+            this.logger.Log(new string(',', 80));
+
             foreach (var player in this.Players)
             {
                 player.DecisionTaker.HandleAllFoldContext(this.GetAllFoldContextForEachPlayer(player), this.GetFullPlayerInformation(player));
@@ -384,7 +394,7 @@ namespace PokerEngine.Logic
             }
 
             return hasBettingStage;
-        }
+        } // NO LOGGER
 
         private void AdvanceToPreFlopStage()
         {            
@@ -496,11 +506,25 @@ namespace PokerEngine.Logic
 
             var endGameContext = this.BuildEndGameContext();
 
+            // Add winnings to player accounts
+            Player currentWinner;
+
+            foreach (var pot in endGameContext.Pots)
+            {
+                foreach (var winner in pot.Winners)
+                {
+                    currentWinner = this.Players.FirstOrDefault(x => x.Name == winner.Name);
+                    currentWinner.Money += pot.WinAmount;
+                }
+            }
+
+            this.LogEndGameResults(endGameContext);      
+
             foreach (var player in this.Players)
             {
                 player.DecisionTaker.HandleEndGameContext(endGameContext, this.GetFullPlayerInformation(player));
             }
-        }
+        } //DONE
 
         private BettingOutcome AdvanceToBetting(int firstToBetIndex, bool blindBetting)
         {
@@ -616,7 +640,7 @@ namespace PokerEngine.Logic
                 }
             }
 
-            this.logger.Log(String.Format("Player {0} gives invalid decision for 3rd time.", player));
+            this.logger.Log(String.Format("Player \"{0}\" gives invalid decision for 3rd time.", player));
 
             // Take default action if 3 consecutive decisions aren't valid.
             if (this.PlayerCheck(player))
@@ -676,9 +700,14 @@ namespace PokerEngine.Logic
             {
                 currentPlayerIndex = i % this.Players.Count;
 
-                this.Players[currentPlayerIndex].Cards.AddRange(this.deck.DealMultipleCards(2));
+                var currentPlayer = this.Players[currentPlayerIndex];
+                var cardsDealt = this.deck.DealMultipleCards(2);
+
+                currentPlayer.Cards.AddRange(cardsDealt);
+
+                this.logger.Log(String.Format("Player \"{0}\" receives cards: {1}.", currentPlayer, String.Join(", ", currentPlayer.Cards)));
             }
-        } // NO LOGGER
+        } //DONE
 
         private bool InvestToPot(Player player, decimal amountToPay, out decimal amountInvested)
         {
@@ -964,7 +993,7 @@ namespace PokerEngine.Logic
 
             foreach (var player in this.Players)
             {
-                this.logger.Log(String.Format("Player \"{0}\" joins the draw.", player.Name));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) joins the draw.", player.Name, player.Money));
             }
 
             this.logger.Log(String.Format("Small blind amount: {0}.", this.SmallBlindAmount));
@@ -1014,6 +1043,39 @@ namespace PokerEngine.Logic
             var messageToLog = String.Format("Current table cards: {0}.", String.Join(" ", this.TableCards));
 
             this.logger.Log(messageToLog);
+        }
+
+        private void LogEndGameResults(EndGameContext context)
+        {
+            this.logger.Log("End game results:");
+
+            var currentIndex = context.Pots.Count - 1;
+
+            foreach (var pot in context.Pots)
+            {
+                this.logger.Log(new string('-', 80));
+
+                if (currentIndex > 0)
+                {
+                    this.logger.Log(String.Format("Side pot {0}:", currentIndex));
+                }
+                else
+                {
+                    this.logger.Log(String.Format("Main pot:", currentIndex));
+                }
+                
+                this.logger.Log(String.Format("Pot amount: {0}.", pot.Amount));
+                this.logger.Log("Winners:");
+
+                foreach (var winner in pot.Winners)
+                {
+                    this.logger.Log(String.Format("Player \"{0}\" wins {1} with the hand {2}({3}).", winner.Name, pot.WinAmount, winner.Hand, winner.Hand.HandValue));
+                }
+
+                this.logger.Log(new string('-', 40));
+
+                currentIndex--;
+            }
         }
     }
 }

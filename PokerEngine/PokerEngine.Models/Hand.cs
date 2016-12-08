@@ -26,5 +26,12 @@ namespace PokerEngine.Models
             get { return this.handValue; }
             private set { this.handValue = value; }
         }
+
+        public override string ToString()
+        {
+            var handToString = string.Join(", ", this.Cards);
+
+            return handToString;
+        }
     }
 }
