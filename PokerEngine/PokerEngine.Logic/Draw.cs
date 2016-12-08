@@ -287,7 +287,7 @@ namespace PokerEngine.Logic
             playerActions = playerActionsList.AsReadOnly();
 
             return playerActions;
-        } // NO LOGGER
+        } //DONE
 
         internal void StartDraw()
         {
@@ -316,9 +316,17 @@ namespace PokerEngine.Logic
             var blindFirstToBetIndex = (this.dealerIndex + 3) % this.Players.Count;
 
             this.AdvanceToPreFlopStage();
-            var bettingOutcome = this.AdvanceToBetting(blindFirstToBetIndex, true);
 
-            this.HandleBettingOutcome(bettingOutcome);
+            if (this.AreAllPlayersAllIn())
+            {
+                this.HandleBettingOutcome(BettingOutcome.AllInShowdown);
+            }
+            else
+            {
+                var bettingOutcome = this.AdvanceToBetting(blindFirstToBetIndex, true);
+
+                this.HandleBettingOutcome(bettingOutcome);
+            }
         }
 
         private void HandleBettingOutcome(BettingOutcome bettingOutcome)
@@ -342,6 +350,10 @@ namespace PokerEngine.Logic
             }
             else if (bettingOutcome == BettingOutcome.AllInShowdown)
             {
+                this.logger.AddSeparator();
+                this.logger.Log("All players went all-in.");
+                this.logger.AddSeparator();
+
                 while (this.GameStage != GameStage.Showdown)
                 {
                     this.AdvanceToNextStage();
@@ -553,9 +565,7 @@ namespace PokerEngine.Logic
                         return BettingOutcome.WinThroughFold;
                     }
 
-                    var playersLeftInGame = this.Players.Count - this.playersFoldCount;
-
-                    if (playersLeftInGame == this.playersAllInCount || playersLeftInGame == this.playersAllInCount + 1)
+                    if (this.AreAllPlayersAllIn())
                     {
                         return BettingOutcome.AllInShowdown;
                     }
@@ -579,8 +589,6 @@ namespace PokerEngine.Logic
             }
 
             this.SyncPots();
-
-            //this.currentPot.CurrentMaxStake = 0;
 
             int previousIndex = this.firstToBetIndex - 1;
 
@@ -768,7 +776,7 @@ namespace PokerEngine.Logic
                 else
                 {
                     this.logger.Log(String.Format("Player \"{0}\" cannot afford the small blind amount of {1} and goes all-in with {2}.", this.SmallBlindPosition, this.SmallBlindAmount, amountInvested));
-                }                
+                }
             }
             else
             {
@@ -794,7 +802,7 @@ namespace PokerEngine.Logic
                 else
                 {
                     this.logger.Log(String.Format("Player \"{0}\" cannot afford the big blind amount of {1} and goes all-in with {2}.", this.BigBlindPosition, this.BigBlindAmount, amountInvested));
-                }                
+                }
             }
             else
             {
@@ -940,6 +948,20 @@ namespace PokerEngine.Logic
                 //}
             }
         } //DONE
+
+        private bool AreAllPlayersAllIn()
+        {
+            var areAllAllIn = false;
+
+            var playersLeftInGame = this.Players.Count - this.playersFoldCount;
+
+            if (playersLeftInGame == this.playersAllInCount || playersLeftInGame == this.playersAllInCount + 1)
+            {
+                areAllAllIn = true;
+            }
+
+            return areAllAllIn;
+        }
 
         private void SyncPots()
         {
