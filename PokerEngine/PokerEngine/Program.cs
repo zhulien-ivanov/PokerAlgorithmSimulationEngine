@@ -10,8 +10,8 @@ namespace PokerEngine
     {
         public static void Main()
         {
-            var firstPlayer = new Player("Ivan", 100, new PassivePlayer());
-            var secondPlayer = new Player("Damyan", 100, new AggressivePlayer());
+            var firstPlayer = new Player("Ivan", 100, new PassivePlayer()); //Dealer, BB
+            var secondPlayer = new Player("Damyan", 5, new AggressivePlayer()); //SB
 
             var players = new List<Player>();
 
