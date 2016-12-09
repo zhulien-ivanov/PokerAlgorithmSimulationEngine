@@ -12,7 +12,12 @@ namespace PokerEngine.Helpers
 
         public FileLogger(char separator, int separatorRepeatCount)
         {
-            this.path = Environment.CurrentDirectory + @"\history.txt";
+            var currentTime = DateTime.Now;
+            var currentDate = String.Format("{0}.{1}.{2}-T-{3}.{4}.{5}", currentTime.Day, currentTime.Month, currentTime.Year, currentTime.Hour, currentTime.Minute, currentTime.Second);
+
+            var fileName = String.Format(@"\history-{0}.txt", currentDate);
+
+            this.path = Environment.CurrentDirectory + fileName;
 
             this.separator = new String(separator, separatorRepeatCount);
         }

@@ -3,7 +3,7 @@ using PokerEngine.Models.Contracts;
 using PokerEngine.Models.GameContexts;
 using PokerEngine.Models.Helpers;
 
-namespace PokerEngine
+namespace PokerEngine.Strategies
 {
     public class PassivePlayer : IStrategy
     {

@@ -1,7 +1,9 @@
-﻿using PokerEngine.Evaluators;
-using PokerEngine.Helpers;
+﻿using PokerEngine.Helpers;
 using PokerEngine.Logic;
 using PokerEngine.Models;
+
+using PokerEngine.Strategies;
+
 using System.Collections.Generic;
 
 namespace PokerEngine
@@ -12,8 +14,8 @@ namespace PokerEngine
         {
             var firstPlayer = new Player("A", 100, new PassivePlayer());
             var secondPlayer = new Player("B", 100, new AggressivePlayer());
-            var thirdPlayer = new Player("C", 100, new PassivePlayer());
-            var forthPlayer = new Player("D", 100, new PassivePlayer());
+            var thirdPlayer = new Player("C", 100, new RandomPlayer());
+            var forthPlayer = new Player("D", 100, new RandomPlayer());
             var fifthPlayer = new Player("E", 100, new AggressivePlayer());
 
             var players = new List<Player>();
