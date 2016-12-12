@@ -15,7 +15,7 @@ namespace PokerEngine.Evaluators
 
         public Hand EvaluateHand(List<Card> cards)
         {
-            if (cards.Count != 7)
+            if (cards.Count < 5 || cards.Count > 7)
             {
                 throw new ArgumentException("Invalid number of cards.");
             }

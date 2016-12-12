@@ -443,6 +443,9 @@ namespace PokerEngine.Logic
 
             LogTableCards();
 
+            // Evaluate player hands
+            this.EvaluatePlayersHands();
+
             foreach (var player in this.Players)
             {
                 player.DecisionTaker.HandleFlopStageContext(this.GetFlopStageContextForPlayer(player), this.GetFullPlayerInformation(player));
@@ -462,6 +465,9 @@ namespace PokerEngine.Logic
             this.logger.Log(String.Format("New card: {0}.", newCard));
 
             LogTableCards();
+
+            // Evaluate player hands
+            this.EvaluatePlayersHands();
 
             foreach (var player in this.Players)
             {
@@ -483,6 +489,9 @@ namespace PokerEngine.Logic
 
             LogTableCards();
 
+            // Evaluate player hands
+            this.EvaluatePlayersHands();
+
             foreach (var player in this.Players)
             {
                 player.DecisionTaker.HandleRiverStageContext(this.GetRiverStageContextForPlayer(player), this.GetFullPlayerInformation(player));
@@ -494,27 +503,6 @@ namespace PokerEngine.Logic
             this.GameStage = GameStage.Showdown;
 
             this.LogStageInformation();
-
-            var playersInGame = this.Players.Where(x => !x.HasFolded).ToList();
-
-            Hand playerHand;
-            Player currentPlayer;
-
-            var evaluateHandCards = new List<Card>(7);
-
-            for (int i = 0; i < playersInGame.Count; i++)
-            {
-                currentPlayer = playersInGame[i];
-
-                evaluateHandCards.AddRange(this.TableCards);
-                evaluateHandCards.AddRange(currentPlayer.Cards);
-
-                playerHand = this.handEvaluator.HandEvaluator.EvaluateHand(evaluateHandCards);
-
-                currentPlayer.Hand = playerHand;
-
-                evaluateHandCards.Clear();
-            }
 
             var endGameContext = this.BuildEndGameContext();
 
@@ -674,13 +662,30 @@ namespace PokerEngine.Logic
 
             return fullPlayerInfo;
         } // NO LOGGER
-
-        private int GetPlayerIndex(Player player)
+        
+        private void EvaluatePlayersHands()
         {
-            var index = this.currentPot.PotentialWinners.IndexOf(player);
+            var playersInGame = this.Players.Where(x => !x.HasFolded).ToList();
 
-            return index;
-        }
+            Hand playerHand;
+            Player currentPlayer;
+
+            var evaluateHandCards = new List<Card>();
+
+            for (int i = 0; i < playersInGame.Count; i++)
+            {
+                currentPlayer = playersInGame[i];
+
+                evaluateHandCards.AddRange(this.TableCards);
+                evaluateHandCards.AddRange(currentPlayer.Cards);
+
+                playerHand = this.handEvaluator.HandEvaluator.EvaluateHand(evaluateHandCards);
+
+                currentPlayer.Hand = playerHand;
+
+                evaluateHandCards.Clear();
+            }
+        }        
 
         private void SyncPlayerInformation(Player player)
         {
