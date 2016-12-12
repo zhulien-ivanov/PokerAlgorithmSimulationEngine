@@ -289,7 +289,7 @@ namespace PokerEngine.Logic
             return playerActions;
         } //DONE
 
-        internal void StartDraw()
+        internal void StartDraw() //DONE
         {
             this.lastActionIndexSent = this.Players.ToDictionary(x => x, x => -1);
 
@@ -515,6 +515,7 @@ namespace PokerEngine.Logic
                 {
                     currentWinner = this.Players.FirstOrDefault(x => x.Name == winner.Name);
                     currentWinner.Money += pot.WinAmount;
+                    winner.Money = currentWinner.Money;             
                 }
             }
 
@@ -636,7 +637,7 @@ namespace PokerEngine.Logic
                 }
             }
 
-            this.logger.Log(String.Format("Player \"{0}\" gives invalid decision for 3rd time.", player));
+            this.logger.Log(String.Format("Player \"{0}\"({1}) gives invalid decision for 3rd time.", player, player.Money));
 
             // Take default action if 3 consecutive decisions aren't valid.
             if (this.PlayerCheck(player))
@@ -718,7 +719,7 @@ namespace PokerEngine.Logic
 
                 currentPlayer.Cards.AddRange(cardsDealt);
 
-                this.logger.Log(String.Format("Player \"{0}\" receives cards: {1}.", currentPlayer, String.Join(", ", currentPlayer.Cards)));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) receives cards: {2}.", currentPlayer, currentPlayer.Money, String.Join(", ", currentPlayer.Cards)));
             }
         } //DONE
 
@@ -776,16 +777,16 @@ namespace PokerEngine.Logic
             {
                 if (amountInvested == playerMoney)
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" goes all-in with {1}.", this.SmallBlindPosition, amountInvested));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) goes all-in with {2}.", this.SmallBlindPosition, this.SmallBlindPosition.Money, amountInvested));
                 }
                 else
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" cannot afford the small blind amount of {1} and goes all-in with {2}.", this.SmallBlindPosition, this.SmallBlindAmount, amountInvested));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) cannot afford the small blind amount of {2} and goes all-in with {3}.", this.SmallBlindPosition, this.SmallBlindPosition.Money, this.SmallBlindAmount, amountInvested));
                 }
             }
             else
             {
-                this.logger.Log(String.Format("Player \"{0}\" pays the small blind amount of {1}.", this.SmallBlindPosition, this.SmallBlindAmount));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) pays the small blind amount of {2}.", this.SmallBlindPosition, this.SmallBlindPosition.Money, this.SmallBlindAmount));
             }
         } //DONE
 
@@ -802,16 +803,16 @@ namespace PokerEngine.Logic
             {
                 if (amountInvested == playerMoney)
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" goes all-in with {1}.", this.BigBlindPosition, amountInvested));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) goes all-in with {2}.", this.BigBlindPosition, this.BigBlindPosition.Money, amountInvested));
                 }
                 else
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" cannot afford the big blind amount of {1} and goes all-in with {2}.", this.BigBlindPosition, this.BigBlindAmount, amountInvested));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) cannot afford the big blind amount of {2} and goes all-in with {3}.", this.BigBlindPosition, this.BigBlindPosition.Money, this.BigBlindAmount, amountInvested));
                 }
             }
             else
             {
-                this.logger.Log(String.Format("Player \"{0}\" pays the big blind amount of {1}.", this.BigBlindPosition, this.BigBlindAmount));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) pays the big blind amount of {2}.", this.BigBlindPosition, this.BigBlindPosition.Money, this.BigBlindAmount));
             }
         } //DONE
 
@@ -832,23 +833,23 @@ namespace PokerEngine.Logic
                 {
                     if (amountInvested == playerMoney)
                     {
-                        this.logger.Log(String.Format("Player \"{0}\" goes all-in with {1}.", player, amountInvested));
+                        this.logger.Log(String.Format("Player \"{0}\"({1}) goes all-in with {2}.", player, player.Money, amountInvested));
                     }
                     else
                     {
-                        this.logger.Log(String.Format("Player \"{0}\" cannot afford the call amount of {1} and goes all-in with {2}.", player, callAmount, amountInvested));
+                        this.logger.Log(String.Format("Player \"{0}\"({1}) cannot afford the call amount of {2} and goes all-in with {3}.", player, player.Money, callAmount, amountInvested));
                     }                    
                 }
                 else
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" calls with the amount of {1}.", player, amountInvested));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) calls with the amount of {2}.", player, player.Money, amountInvested));
                 }
 
                 return true;
             }
             else
             {
-                this.logger.Log(String.Format("Player \"{0}\" tries to call but this is not a valid action.", player));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) tries to call but this is not a valid action.", player, player.Money));
 
                 return false;
             }
@@ -869,13 +870,13 @@ namespace PokerEngine.Logic
 
             if (amountToRaise > maximalRaiseAmount)
             {
-                this.logger.Log(String.Format("Player \"{0}\" tries to raise with {1} but he has only {2}.", player, amountToRaise, player.Money));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) tries to raise with {2} but he has only {3}.", player, player.Money, amountToRaise, player.Money - potStakeDifference));
                 return false;
             }
 
-            if (amountToRaise < minimalRaiseAmount && player.Money > minimalRaiseAmount)
+            if (amountToRaise < this.BigBlindAmount && player.Money > minimalRaiseAmount)
             {
-                this.logger.Log(String.Format("Player \"{0}\" tries to raise with {1} but this amount is less than the minimal required amount for rise of {2}.", player, amountToRaise, minimalRaiseAmount));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) tries to raise with {2} but this amount is less than the minimal required amount for rise of {3}.", player, player.Money, amountToRaise, this.BigBlindAmount));
                 return false;
             }
 
@@ -888,17 +889,17 @@ namespace PokerEngine.Logic
 
             if (isAllIn)
             {
-                this.logger.Log(String.Format("Player \"{0}\" goes all-in with the amount of {1}.", player, raisedAmount));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) goes all-in with the amount of {2}.", player, player.Money, raisedAmount));
             }
             else
             {
                 if (potStakeDifference == 0)
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" raises with the amount of {1}.", player, raisedAmount));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) raises with the amount of {2}.", player, player.Money, raisedAmount));
                 }
                 else
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" calls the amount of {1} and raises with the amount of {2}.", player, potStakeDifference, raisedAmount));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) calls the amount of {2} and raises with the amount of {3}.", player, player.Money, potStakeDifference, raisedAmount));
                 }
             }
 
@@ -911,13 +912,13 @@ namespace PokerEngine.Logic
             {
                 this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Check, 0, false));
                 
-                this.logger.Log(String.Format("Player \"{0}\" checks.", player));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) checks.", player, player.Money));
 
                 return true;
             }
             else
             {
-                this.logger.Log(String.Format("Player \"{0}\" tries to check but this is not a valid action.", player));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) tries to check but this is not a valid action.", player, player.Money));
 
                 return false;
             }
@@ -927,7 +928,7 @@ namespace PokerEngine.Logic
         {
             this.FilePlayerAction(new PlayerAction(player, Models.Enumerations.Action.Fold, 0, false));
 
-            this.logger.Log(String.Format("Player \"{0}\" folds.", player));
+            this.logger.Log(String.Format("Player \"{0}\"({1}) folds.", player, player.Money));
 
             player.HasFolded = true;
             this.playersFoldCount++;
@@ -1058,9 +1059,9 @@ namespace PokerEngine.Logic
             this.logger.Log(String.Format("Small blind amount: {0}.", this.SmallBlindAmount));
             this.logger.Log(String.Format("Small big amount: {0}.", this.BigBlindAmount));
 
-            this.logger.Log(String.Format("{0} is the current dealer.", this.DealerPosition.Name));
-            this.logger.Log(String.Format("{0} is the current small blind.", this.SmallBlindPosition));
-            this.logger.Log(String.Format("{0} is the current big blind.", this.BigBlindPosition));
+            this.logger.Log(String.Format("{0}({1}) is the current dealer.", this.DealerPosition, this.DealerPosition.Money));
+            this.logger.Log(String.Format("{0}({1}) is the current small blind.", this.SmallBlindPosition, this.SmallBlindPosition.Money));
+            this.logger.Log(String.Format("{0}({1}) is the current big blind.", this.BigBlindPosition, this.BigBlindPosition.Money));
         }
 
         private void LogStageInformation()
@@ -1089,7 +1090,9 @@ namespace PokerEngine.Logic
                     break;
             }
 
-            this.logger.Log(String.Format("{0} stage begins, {1} players in.", stage, this.Players.Count(x => !x.HasFolded)));
+            var playersInGame = this.Players.Where(x => !x.HasFolded).ToList();
+
+            this.logger.Log(String.Format("{0} stage begins, {1} players in: [{2}].", stage, playersInGame.Count, String.Join(", ", playersInGame)));
         }
 
         private void LogTableCards()
@@ -1119,11 +1122,19 @@ namespace PokerEngine.Logic
                 }
                 
                 this.logger.Log(String.Format("Pot amount: {0}.", pot.Amount));
+
+                this.logger.Log("Players:");
+
+                foreach (var player in this.currentPot.PotentialWinners.Where(x => !x.HasFolded))
+                {
+                    this.logger.Log(String.Format("Player \"{0}\"({1}): [{2}]({3})", player.Name, player.Money, player.Hand, player.Hand.HandValue));
+                }
+
                 this.logger.Log("Winners:");
 
                 foreach (var winner in pot.Winners)
                 {
-                    this.logger.Log(String.Format("Player \"{0}\" wins {1} with the hand {2}({3}).", winner.Name, pot.WinAmount, winner.Hand, winner.Hand.HandValue));
+                    this.logger.Log(String.Format("Player \"{0}\"({1}) wins {2} with the hand [{3}]({4}).", winner.Name, winner.Money, pot.WinAmount, winner.Hand, winner.Hand.HandValue));
                 }
 
                 this.logger.AddSeparator();

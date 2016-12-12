@@ -99,7 +99,7 @@ namespace PokerEngine.Logic
 
             foreach (var player in this.Players)
             {
-                this.logger.Log(String.Format("Player \"{0}\" joins the table.", player.Name));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) joins the table.", player.Name, player.Money));
             }
         }
 
@@ -108,6 +108,7 @@ namespace PokerEngine.Logic
             this.SaveDrawInformation(draw);
             
             List<Player> playersLeft = new List<Player>();
+            List<Player> playersBankrupt = new List<Player>();
 
             for (int i = 0; i < draw.Players.Count; i++)
             {
@@ -117,9 +118,16 @@ namespace PokerEngine.Logic
                 }
                 else
                 {
-                    // Logger - player leave the table (bankrupt)
+                    playersBankrupt.Add(draw.Players[i]);
                 }
             }
+
+            if (playersBankrupt.Count > 0)
+            {
+                this.logger.AddSeparator();
+                this.logger.Log(String.Format("{0} players went bankrupt: {1}.", playersBankrupt.Count, String.Join(", ", playersBankrupt)));
+                this.logger.AddSeparator();
+            }            
 
             this.Players = new List<Player>(playersLeft);
 
