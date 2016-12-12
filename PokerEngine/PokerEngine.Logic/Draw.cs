@@ -11,7 +11,7 @@ using PokerEngine.Helpers.Contracts;
 
 namespace PokerEngine.Logic
 {
-    public class Draw
+    internal class Draw
     {
         private GameStage gameStage;
         private decimal fullPotAmount;
@@ -84,64 +84,64 @@ namespace PokerEngine.Logic
             this.startGameContext = this.BuildStartGameContext();
         }
 
-        public GameStage GameStage
+        internal GameStage GameStage
         {
             get { return this.gameStage; }
-            internal set { this.gameStage = value; }
+            private set { this.gameStage = value; }
         }
 
-        public decimal FullPotAmount
+        internal decimal FullPotAmount
         {
             get { return this.fullPotAmount; }
-            internal set { this.fullPotAmount = value; }
+            private set { this.fullPotAmount = value; }
         }
 
-        public List<Player> Players
+        internal List<Player> Players
         {
             get { return this.players; }
-            internal set { this.players = value; }
+            private set { this.players = value; }
         }
 
-        public List<Card> TableCards
+        internal List<Card> TableCards
         {
             get { return this.tableCards; }
-            internal set { this.tableCards = value; }
+            private set { this.tableCards = value; }
         }
 
-        public List<PlayerAction> PlayerActions
+        internal List<PlayerAction> PlayerActions
         {
             get { return this.playerActions; }
-            internal set { this.playerActions = value; }
+            private set { this.playerActions = value; }
         }
 
-        public Player DealerPosition
+        internal Player DealerPosition
         {
             get { return this.dealerPosition; }
-            internal set { this.dealerPosition = value; }
+            private set { this.dealerPosition = value; }
         }
 
-        public Player SmallBlindPosition
+        internal Player SmallBlindPosition
         {
             get { return this.smallBlindPosition; }
-            internal set { this.smallBlindPosition = value; }
+            private set { this.smallBlindPosition = value; }
         }
 
-        public Player BigBlindPosition
+        internal Player BigBlindPosition
         {
             get { return this.bigBlindPosition; }
-            internal set { this.bigBlindPosition = value; }
+            private set { this.bigBlindPosition = value; }
         }
 
-        public decimal SmallBlindAmount
+        internal decimal SmallBlindAmount
         {
             get { return this.smallBlindAmount; }
-            internal set { this.smallBlindAmount = value; }
+            private set { this.smallBlindAmount = value; }
         }
 
-        public decimal BigBlindAmount
+        internal decimal BigBlindAmount
         {
             get { return this.bigBlindAmount; }
-            internal set { this.bigBlindAmount = value; }
+            private set { this.bigBlindAmount = value; }
         }
 
         // Build general game context(caching)

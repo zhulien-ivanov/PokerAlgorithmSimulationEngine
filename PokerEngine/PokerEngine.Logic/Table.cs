@@ -50,22 +50,22 @@ namespace PokerEngine.Logic
             this.blindsDrawContext = new BlindsDrawContext();
         }
 
-        public List<Player> Players
+        internal List<Player> Players
         {
             get { return this.players; }
-            internal set { this.players = value; }
+            private set { this.players = value; }
         }
 
-        public List<Draw> Draws
+        internal List<Draw> Draws
         {
             get { return this.draws; }
-            internal set { this.draws = value; }
+            private set { this.draws = value; }
         }
 
-        public Draw CurrentDraw
+        internal Draw CurrentDraw
         {
             get { return this.currentDraw; }
-            internal set { this.currentDraw = value; }
+            private set { this.currentDraw = value; }
         }
 
         public void StartGame()
