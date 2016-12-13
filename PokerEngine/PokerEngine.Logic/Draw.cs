@@ -353,7 +353,7 @@ namespace PokerEngine.Logic
             else if (bettingOutcome == BettingOutcome.AllInShowdown)
             {
                 this.logger.AddSeparator();
-                this.logger.Log("All players went all-in.");
+                this.logger.Log("All non-fold players are all-in. Proceed to all-in showdown.");
                 this.logger.AddSeparator();
 
                 while (this.GameStage != GameStage.Showdown)
@@ -441,7 +441,7 @@ namespace PokerEngine.Logic
 
             this.TableCards.AddRange(newCards);
 
-            this.logger.Log(String.Format("New cards: {0}.", String.Join(" ", newCards)));
+            this.logger.Log(String.Format("New cards: [{0}].", String.Join("][", newCards)));
 
             LogTableCards();
 
@@ -464,7 +464,7 @@ namespace PokerEngine.Logic
 
             this.TableCards.Add(newCard);
 
-            this.logger.Log(String.Format("New card: {0}.", newCard));
+            this.logger.Log(String.Format("New card: [{0}].", newCard));
 
             LogTableCards();
 
@@ -487,7 +487,7 @@ namespace PokerEngine.Logic
 
             this.TableCards.Add(newCard);
 
-            this.logger.Log(String.Format("New card: {0}.", newCard));
+            this.logger.Log(String.Format("New card: [{0}].", newCard));
 
             LogTableCards();
 
@@ -721,7 +721,7 @@ namespace PokerEngine.Logic
 
                 currentPlayer.Cards.AddRange(cardsDealt);
 
-                this.logger.Log(String.Format("Player \"{0}\"({1}) receives cards: {2}.", currentPlayer, currentPlayer.Money, String.Join(", ", currentPlayer.Cards)));
+                this.logger.Log(String.Format("Player \"{0}\"({1}) receives cards: [{2}].", currentPlayer, currentPlayer.Money, String.Join("][", currentPlayer.Cards)));
             }
         } //DONE
 
@@ -1099,7 +1099,7 @@ namespace PokerEngine.Logic
 
         private void LogTableCards()
         {
-            var messageToLog = String.Format("Current table cards: {0}.", String.Join(" ", this.TableCards));
+            var messageToLog = String.Format("Current table cards: [{0}].", String.Join("][", this.TableCards));
 
             this.logger.Log(messageToLog);
         }
