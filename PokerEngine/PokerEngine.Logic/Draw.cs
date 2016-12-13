@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 using PokerEngine.Models;
 using PokerEngine.Models.Enumerations;
@@ -9,8 +10,9 @@ using PokerEngine.Models.Helpers;
 using PokerEngine.Logic.Contracts;
 using PokerEngine.Helpers.Contracts;
 
+[assembly: InternalsVisibleTo("PokerEngine.Logic.Tests")]
 namespace PokerEngine.Logic
-{
+{    
     internal class Draw
     {
         private GameStage gameStage;

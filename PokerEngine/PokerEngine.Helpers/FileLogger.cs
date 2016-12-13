@@ -30,6 +30,21 @@ namespace PokerEngine.Helpers
             }
         }
 
+        public void LogError(string message)
+        {
+            this.Log(String.Format("ERROR: {0}", message));
+        }
+
+        public void LogInfo(string message)
+        {
+            this.Log(String.Format("INFO: {0}", message));
+        }
+
+        public void LogWarning(string message)
+        {
+            this.Log(String.Format("WARNING: {0}", message));
+        }
+
         public void AddSeparator()
         {
             using (var sw = new StreamWriter(this.path, true))
